@@ -1,0 +1,46 @@
+library(R.matlab) # Reads matlab files
+library(stringr) # String manipulation
+
+# NOTE: should have the folder "MatFiles" downloaded and extracted to the location below
+# Should have the files "disposition.xls" and "randomization.xlsx" in locations below
+
+
+
+## Grab all of the .mat Files from directory H:\V2VMAT\MatFiles
+files <- list.files("C:\\Users\\jindalta\\OneDrive - Grinnell College\\MatFiles")
+
+## Read in the first one (will automate later)
+m1 <- readMat(paste0("C:\\Users\\jindalta\\OneDrive - Grinnell College\\MatFiles\\",files[1]))
+part1speed <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Speed')]]
+part1time <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'Time')]]
+part1heading <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Heading')]]
+part1logstream <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'SCC.LogStreams')]][,1]
+
+df1 <- data.frame("time" =  part1time,"speed" = part1speed,"heading" = part1heading, "logstream" = part1logstream)
+df1
+incdf1 <- df1[which(df1$logstream != 0),names(df1) %in% c("time","speed","heading","logstream")]
+incdf1
+incdf1$time <- incdf1$time - incdf1$time[1]
+incdf1$speed <- 0.44704*incdf1$speed
+incdf1$posxq <- (2.7 - incdf1$time) *15.6464
+incdf1$posyq <- incdf1$time*0
+incdf1$posxp <- incdf1$time*0
+#this is incorrect- just a subsitute for Tiger's code
+incdf1$posyp <- (2.7 - incdf1$time) * incdf1$speed
+
+t <- 17.65
+inc <- .01
+p <- data.frame(x = incdf1$posxp, y = incdf1$posyp, t = incdf1$time)
+q <- data.frame(x = incdf1$posxq, y = incdf1$posyq, t = incdf1$time)
+
+library(plotly)
+df <- rbind(p,q)
+pl <- df %>%
+  plot_ly(
+    x = ~x,
+    y = ~y,
+    frame = ~t,
+    type = 'scatter',
+    mode = 'markers',
+    showlegend = F
+  )
