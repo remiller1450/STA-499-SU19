@@ -24,12 +24,22 @@ incdf1$time <- incdf1$time - incdf1$time[1]
 incdf1$speed <- 0.44704*incdf1$speed
 incdf1$posxq <- (2.7 - incdf1$time) *15.6464
 incdf1$posyq <- incdf1$time*0
-incdf1$posxp <- incdf1$time*0
-#this is incorrect- just a subsitute for Tiger's code
-incdf1$posyp <- (2.7 - incdf1$time) * incdf1$speed
 
-t <- 17.65
-inc <- .01
+##heading angle from degree to radian and set facing direction to be 0
+incdf1$heading <- incdf1$heading*pi/180
+incdf1$heading <- incdf1$heading - pi
+
+for (i in 1:length(incdf1$time)){
+  if (i!=1){
+  incdf1$posyp[i] <- incdf1$speed[i]/60*cos(incdf1$heading[i])+incdf1$posyp[i-1]
+  incdf1$posxp[i] <- incdf1$speed[i]/60*-sin(incdf1$heading[i])+incdf1$posxp[i-1]
+  }
+  else{
+    incdf1$posyp[i] <- incdf1$speed[i]/60*cos(incdf1$heading[i])
+    incdf1$posxp[i] <- incdf1$speed[i]/60*-sin(incdf1$heading[i])
+  }
+}
+
 p <- data.frame(x = incdf1$posxp, y = incdf1$posyp, t = incdf1$time)
 q <- data.frame(x = incdf1$posxq, y = incdf1$posyq, t = incdf1$time)
 
