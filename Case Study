@@ -9,7 +9,7 @@ library(stringr) # String manipulation
 ## Grab all of the .mat Files from directory H:\V2VMAT\MatFiles
 files <- list.files("C:\\Users\\jindalta\\OneDrive - Grinnell College\\MatFiles")
 
-## Read in the first one (will automate later)
+## Read in the first one (ID is 20171207192921)
 m1 <- readMat(paste0("C:\\Users\\jindalta\\OneDrive - Grinnell College\\MatFiles\\",files[1]))
 part1speed <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Speed')]]
 part1time <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'Time')]]
@@ -22,23 +22,28 @@ incdf1 <- df1[which(df1$logstream != 0),names(df1) %in% c("time","speed","headin
 incdf1
 incdf1$time <- incdf1$time - incdf1$time[1]
 incdf1$speed <- 0.44704*incdf1$speed
-incdf1$posxq <- (2.7 - incdf1$time) *15.6464
-incdf1$posyq <- incdf1$time*0
 
 ##heading angle from degree to radian and set facing direction to be 0
 incdf1$heading <- incdf1$heading*pi/180
 incdf1$heading <- incdf1$heading - pi
 
+
+#10.2 is time at which logstream ==3-- will be automated later
+#position of point P
 for (i in 1:length(incdf1$time)){
   if (i!=1){
-  incdf1$posyp[i] <- incdf1$speed[i]/60*cos(incdf1$heading[i])+incdf1$posyp[i-1]
-  incdf1$posxp[i] <- incdf1$speed[i]/60*-sin(incdf1$heading[i])+incdf1$posxp[i-1]
+    incdf1$posyp[i] <- incdf1$speed[i]/60*cos(incdf1$heading[i])+incdf1$posyp[i-1]
+    incdf1$posxp[i] <- incdf1$speed[i]/60*-sin(incdf1$heading[i])+incdf1$posxp[i-1]
   }
   else{
-    incdf1$posyp[i] <- incdf1$speed[i]/60*cos(incdf1$heading[i])
+    incdf1$posyp[i] <- incdf1$speed[i]/60*cos(incdf1$heading[i]) - 10.2*incdf1$speed[i]
     incdf1$posxp[i] <- incdf1$speed[i]/60*-sin(incdf1$heading[i])
   }
 }
+
+#position of point Q
+incdf1$posxq <- (10.2 - incdf1$time) *15.6464
+incdf1$posyq <- incdf1$time*0
 
 p <- data.frame(x = incdf1$posxp, y = incdf1$posyp, t = incdf1$time)
 q <- data.frame(x = incdf1$posxq, y = incdf1$posyq, t = incdf1$time)
