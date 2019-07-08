@@ -209,4 +209,6 @@ DP <- pointDistance(p3[,-3], Zero, lonlat = FALSE)/rep(10, t/inc + 1)
 DQ <- pointDistance(q3[,-3], Zero, lonlat = FALSE)/rep(-10, t/inc + 1)
 plot(DP,DQ)
 ```
+Now, we run our metric on one of the cases from the data set received from NADS
+```{r}
 
