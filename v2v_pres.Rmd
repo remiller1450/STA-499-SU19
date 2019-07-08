@@ -1,0 +1,270 @@
+---
+title: "TCA metric description"
+header-includes:
+   - \usepackage{tikz}
+    - \usetikzlibrary{shapes.geometric,arrows}
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+We first start by treating vehicles as point objects, P and Q. For the purpose of this paper, we have determined anti-clockwise rotations to be positive and clockwise rotations to be negative.  We define $\vec{u}$ and $\vec{v}$ as the velocities of P and Q respectively:
+
+- $\vec{u} = u_0 \cos(\theta)\hat{i} + u_0\sin(\theta)\hat{j}$
+- $\vec{v}=-v_0\sin(\phi)\hat{i}+v_0\cos(\phi)\hat{j}$
+
+where:
+
+- $\hat{i}$ and $\hat{j}$ are the axes of the vector plane
+- $\theta$ is the angle of rotation of $\vec{u}$ at point P from $\hat{i}$
+- $\phi$ is the angle of rotation of $\vec{v}$ at point Q from $\hat{j}$
+
+To calculate TCA of points P and Q, we find the displacement from P to Q as a function of time. Then, in order to get the time at which the displacement is minimum, we differentiate the function, equate it to 0 and solve for time. This time is the time to closest approach (TCA) of P and Q. If P and Q collide with each other, the displacement at TCA will be 0.
+To calculate P and Q at time t, we use the following notation:
+
+\begin{equation}
+    P(t) =
+  \left( {\begin{array}{c}
+   f_x(t)\\
+   f_y(t)\\
+  \end{array} } \right)
+\end{equation}
+
+where:
+
+- $f_x(t)= \int_0^t u_x(t)\cdot dt$
+- $f_y(t)= \int_0^t u_y(t)\cdot dt$ 
+- $u_x(t)$ and $u_y(t)$ are the $\hat{i}$ and $\hat{j}$ components of point P's velocity
+
+Similarly:
+
+\begin{equation}
+    Q(t) =
+  \left( {\begin{array}{c}
+   g_x(t) \\
+      g_y(t) \\
+  \end{array} } \right)
+\end{equation}
+
+where:
+
+- $g_x(t)= \int_0^t v_x(t)\cdot dt$ 
+- $g_y(t)= \int_0^t v_y(t)\cdot dt$
+- $v_x(t)$ and $v_y(t)$ are the $\hat{i}$ and $\hat{j}$ components of point Q's velocity.
+
+$P(t)$ and $Q(t)$ can be understood as the integrals of velocities $\vec{u}$ and $\vec{v}$ respectively over time t.
+
+Additionally, we introduce adjusted TCA, a metric that measures the time P and Q avoided a collision by. To do so, we modify our calculation of P and Q to create $\hat{P}$ and $\hat{Q}$ that measure the delay in the behavior initiated at $t_0$ that would have led to a crash. Note, while the metric is perhaps most useful in circumstances where $t_0$ marks one vehicle's "reaction" to a threatening situation, it remains valid when no behavior change is initiated at $t_0$, which we refer to as a "null reaction".
+
+\begin{equation}
+    \hat{P}(t) =
+  \left( {\begin{array}{c}
+   f_x(t) + u_0\cdot\cos(\theta_0)\cdot Z_P\\
+   f_y(t) + u_0\cdot\sin(\theta_0)\cdot Z_P\\
+  \end{array} } \right)
+\end{equation}
+
+where: 
+
+- $f_x(t)= \int_0^t u_x(t)\cdot dt$
+- $f_y(t)= \int_0^t u_y(t)\cdot dt$
+- $u_x(t)$ and $u_y(t)$ are the $\hat{i}$ and $\hat{j}$ components of point P's velocity
+- $u_0$ is the velocity of point P at $t= 0$
+- $\theta_0$ is the angle of rotation of P from $\hat{i}$ at $t=0$
+- $Z_P$ is the delayed reaction time for point P, and
+
+\begin{equation}
+    \hat{Q}(t) =
+  \left( {\begin{array}{c}
+   g_x(t) - v_0\cdot\sin(\phi_0)\cdot Z_Q\\
+   g_y(t) + v_0\cdot\cos(\phi_0)\cdot Z_Q\\
+  \end{array} } \right)
+\end{equation}
+
+where:
+
+- $g_x(t)= \int_0^t v_x(t)\cdot dt$ 
+- $g_y(t)= \int_0^t v_y(t)\cdot dt$
+- $v_x(t)$ and $v_y(t)$ are the $\hat{i}$ and $\hat{j}$ components of point Q's velocity
+- $v_0$ is the velocity of point Q at $t= 0$
+- $\phi_0$ is the angle of rotation of Q from $\hat{j}$ at $t=0$
+- $Z_Q$ is the delayed reaction time for point Q
+
+Since we assume that points $\hat{P}$ and $\hat{Q}$ crash at time t with delayed reactions $Z_P$ and $Z_Q$, we set $\hat{P}$ and $\hat{Q}$ equal to each other to get $Z_P$ and $Z_Q$ as functions of time. Here, time t denotes the time it takes for points P and Q to collide from their initial starting points.
+
+### A Simple Example
+
+The simplest example of our model assumes constant velocity over time:
+
+\begin{equation}
+    P(t) = P_0 + t\vec{u}
+\end{equation} \
+\begin{equation}
+ Q(t) = Q_0 + t\vec{v}   
+\end{equation}
+
+where $P_0$ and $Q_0$ are positions of points P and Q at time $t = 0$.
+
+Define a distance vector $\vec{d}(t)$  between P and Q as follows:
+
+\begin{equation}
+    \begin{split}
+       \vec{d}(t) &= P(t) - Q(t) \\
+       &= P_0 - Q_0 + (\vec{u} - \vec{v})t \\
+       &= d_0 + (\vec{u} - \vec{v})t
+    \end{split}
+\end{equation}
+
+where $d_0 = P_0 - Q_0$
+
+We calculate the TCA of P and Q by minimizing $\vec{d}(t)$.
+
+An animation of the scenario is as follows:
+```{r, warning = FALSE, message = FALSE}
+t <- 7
+inc <- .01
+p1 <- data.frame(x = rep(0,t/inc + 1), y = -50+10*seq(0,t, by = inc),  t = seq(0,t, by = inc))
+q1 <- data.frame(x = 40 - 10*seq(0,t, by = inc), y = rep(0,t/inc + 1), t = seq(0,t, by = inc)) 
+library(raster)
+D <- pointDistance(p1[,-3], q1[,-3], lonlat = FALSE)
+library(plotly)
+df <- rbind(p1,q1)
+
+plot1 <- df %>%
+  plot_ly(
+    x = ~x,
+    y = ~y,
+    frame = ~t,
+    type = 'scatter',
+    mode = 'markers',
+    showlegend = F
+  )
+plot1
+```
+
+The TCA of the two points in this animation is:
+```{r}
+TCA1 <- which.min(D)
+tca1 <- seq(0,t, by = inc)[TCA1]
+tca1
+```
+
+Finally, the adjusted TCA gives us the graph:
+```{r}
+Zero <- data.frame(x = rep(0,t/inc + 1), y = rep(0,t/inc + 1))
+DP <- pointDistance(p1[,-3], Zero, lonlat = FALSE)/rep(10, t/inc + 1)
+DQ <- pointDistance(q1[,-3], Zero, lonlat = FALSE)/rep(-10, t/inc + 1)
+plot(DP,DQ)
+```
+
+The area enclosed between (0, 1) and (-1, 0) is the measure of safety from collision.
+
+**MORE INTERPRETATION/EXPLANATION OF THIS GRAPH IS NECESSARY, IT'S OUR MAIN RESULTS**
+
+### Variable velocity with constant acceleration
+
+We will modify our calculation of $\vec{u}$ as follows:
+
+- Define the acceleration of P as $\vec{a_P} = a_{P0}\cos(\theta)\hat{i} + a_{P0}\sin(\theta)\hat{j}$
+
+Adding acceleration to each component of velocity, we get:
+
+\begin{equation}
+    \vec{u}(t) = (u_0 \cos(\theta) + a_{P0}\cos(\theta)t)\hat{i} + (u_0\sin(\theta) + a_{P0}\sin(\theta)t)\hat{j}
+\end{equation}
+
+Similarly,
+
+\begin{equation}
+    \vec{v}(t) = -(v_0 \sin(\phi) + a_{Q0}\sin(\phi)t)\hat{i} + (v_0\cos(\phi) + a_{Q0}\cos(\phi)t)\hat{j}
+\end{equation}
+
+An animation of the scenario is as follows:
+```{r}
+p2 <- data.frame(x = rep(0,t/inc + 1), y = -25+10*seq(0,t, by = inc)-seq(0,t, by = inc)^2,  t = seq(0,t, by = inc))
+q2 <- data.frame(x = 40 - 10*seq(0,t, by = inc), y = rep(0,t/inc + 1), t = seq(0,t, by = inc)) 
+D <- pointDistance(p2[,-3], q2[,-3], lonlat = FALSE)
+df <- rbind(p2,q2)
+plot2 <- df %>%
+  plot_ly(
+    x = ~x,
+    y = ~y,
+    frame = ~t,
+    type = 'scatter',
+    mode = 'markers',
+    showlegend = F
+  )
+plot2
+```
+
+The TCA of the two points in this animation is:
+```{r}
+TCA2 <- which.min(D)
+tca2 <- seq(0,t, by = inc)[TCA2]
+tca2
+```
+
+Finally, the adjusted TCA gives us the graph:
+```{r}
+Zero <- data.frame(x = rep(0,t/inc + 1), y = rep(0,t/inc + 1))
+DP <- pointDistance(p2[,-3], Zero, lonlat = FALSE)/rep(10, t/inc + 1)
+DQ <- pointDistance(q2[,-3], Zero, lonlat = FALSE)/rep(-10, t/inc + 1)
+plot(DP,DQ)
+```
+
+### Non-zero angle of motion- fixed steering wheel angle
+
+We use the steering wheel angle to determine the turn of wheels using the steering ratio. So, turn of wheels $=$ steering wheel angle $\times$ steering ratio.
+
+Since turn of the wheel is the angle by which a vehicle turns at every instant, we interpret it as the derivative of a vehicle's angle of motion.
+
+Let turn of wheel of point P be $W_P$. Then:
+
+\begin{equation}
+ W_P = \frac{d\theta}{dt}   
+\end{equation}
+Since we assume that $W_P$ is a constant, upon integrating both sides of equation (6) with respect to t, we get the angle of motion as a function of time as follows:
+\begin{equation}
+    \theta(t) = W_P \cdot t + \theta_0
+\end{equation}
+
+where $\theta_0$ is the angle at which P was turned at time $t = 0$.
+
+Given a fixed steering wheel angle, point P travels with velocity $\vec{u}$ in a circular motion.
+
+An animation of the scenario is as follows:
+```{r}
+p3 <- data.frame(x = -300/pi + 300/pi*cos(pi*seq(0,t, by = inc)/30), y = -150/pi+300/pi*sin(pi*seq(0,t,by=inc)/30),  t = seq(0,t, by = inc))
+q3 <- data.frame(x = 40 - 10*seq(0,t, by = inc), y = rep(0,t/inc + 1), t = seq(0,t, by = inc)) 
+D <- pointDistance(p3[,-3], q3[,-3], lonlat = FALSE)
+df <- rbind(p3,q3)
+
+plot3 <- df %>%
+  plot_ly(
+    x = ~x,
+    y = ~y,
+    frame = ~t,
+    type = 'scatter',
+    mode = 'markers',
+    showlegend = F
+  )
+plot3
+```
+
+The TCA of the two points in this animation is:
+```{r}
+TCA3 <- which.min(D)
+tca3 <- seq(0,t, by = inc)[TCA3]
+tca3
+```
+
+Finally, the adjusted TCA gives us the graph:
+```{r}
+Zero <- data.frame(x = rep(-12.7936,t/inc + 1), y = rep(0,t/inc + 1))
+DP <- pointDistance(p3[,-3], Zero, lonlat = FALSE)/rep(10, t/inc + 1)
+DQ <- pointDistance(q3[,-3], Zero, lonlat = FALSE)/rep(-10, t/inc + 1)
+plot(DP,DQ)
+```
+
