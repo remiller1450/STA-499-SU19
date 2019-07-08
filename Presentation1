@@ -272,6 +272,8 @@ pl <- df %>%
     showlegend = F
   )
   
+
+Zero <- data.fame(x = 0, y = 0)
 DP <- pointDistance(incdf1[ , 6:5], Zero, lonlat = FALSE)/incdf1$speed[1]
 DQ <- pointDistance(incdf1[ , 7:8], Zero, lonlat = FALSE)/15.6464
 plot(DP,DQ)
