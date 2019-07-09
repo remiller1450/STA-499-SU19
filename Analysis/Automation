@@ -1,0 +1,23 @@
+library(R.matlab) # Reads matlab files
+library(stringr) # String manipulation
+library(readr)
+# NOTE: should have the folder "MatFiles" downloaded and extracted to the location below
+# Should have the files "disposition.xls" and "randomization.xlsx" in locations below
+
+## Grab all of the .mat Files from directory H:\V2VMAT\MatFiles
+files <- list.files("C:\\Users\\jindalta\\OneDrive - Grinnell College\\MatFiles")
+disp <- readxl::read_excel("C:\\Users\\jindalta\\OneDrive - Grinnell College\\disposition.xls")
+disp$DaqName2 <- str_replace(disp$DaqName, ".daq", ".mat")
+rand <- readxl::read_excel("C:\\Users\\jindalta\\OneDrive - Grinnell College\\randomization.xlsx")
+rand$`Participant#`<- as.numeric(rand$`Participant#`)
+df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character(), Safety = numeric())
+
+for (i in 1:length(files)){
+  pos <- which(disp$DaqName2 == files[i])
+  ID <- parse_number(disp[pos, ]$DaqPath)
+  if (str_sub(disp[pos, ]$DaqPath, -2, -1) == "MN" & ID <= 180){
+  alert_char <- rand[which(rand$`Participant#` == ID),]$Characteristic
+  alert_level <- rand[which(rand$`Participant#` == ID),]$AlertLevel
+  de <- data.frame(Part_ID = ID, Alert_C = alert_char, Alert_L = alert_level, Safety = 0)
+  df <- rbind(df, de)
+  }
