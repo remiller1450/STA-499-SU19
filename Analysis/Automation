@@ -21,3 +21,4 @@ for (i in 1:length(files)){
   de <- data.frame(Part_ID = ID, Alert_C = alert_char, Alert_L = alert_level, Safety = 0)
   df <- rbind(df, de)
   }
+  }
