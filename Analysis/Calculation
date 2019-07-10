@@ -33,7 +33,7 @@ m1 <- readMat(paste0("C:\\Users\\jindalta\\OneDrive - Grinnell College\\MatFiles
   df2 <- data.frame(time = 0:10)
   df2$posxp <- df2$time * 0
   time_stop <- incdf1$speed[1]/3
-  for(i in nrow(df2)){
+  for(i in 1:nrow(df2)){
     if (df2$time[i] <= time_stop){
       df2$posyp[i] <- -time_end*incdf1$speed[1]+ df2$time[i]*incdf1$speed[1] - 3/2*df2$time[i]^2
     }
