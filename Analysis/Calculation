@@ -1,47 +1,68 @@
 m1 <- readMat(paste0("C:\\Users\\jindalta\\OneDrive - Grinnell College\\MatFiles\\",files[1]))
-  part1speed <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Speed')]]
-  part1time <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'Time')]]
-  part1heading <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Heading')]]
-  part1logstream <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'SCC.LogStreams')]][,1]
-  
-  df1 <- data.frame("time" =  part1time,"speed" = part1speed,"heading" = part1heading, "logstream" = part1logstream)
-  
-  incdf1 <- df1[which(df1$logstream != 0 & df1$logstream != 3),names(df1) %in% c("time","speed","heading","logstream")]
-  
-  incdf1$speed <- 0.44704*incdf1$speed
-  for (j in 1:length(incdf1$time)) {
+part1speed <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Speed')]]
+part1time <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'Time')]]
+part1heading <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Heading')]]
+part1logstream <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'SCC.LogStreams')]][,1]
+
+df1 <- data.frame("time" =  part1time,"speed" = part1speed,"heading" = part1heading, "logstream" = part1logstream)
+
+incdf1 <- df1[which(df1$logstream != 0 & df1$logstream != 3),names(df1) %in% c("time","speed","heading","logstream")]
+
+incdf1$speed <- 0.44704*incdf1$speed
+for (j in 1:length(incdf1$time)) {
   if (j ==1) {
     incdf1$acceleration[j] = 0
   }
   else{
     incdf1$acceleration[j] <- (incdf1$speed[j] -  incdf1$speed[j-1])  * 60
   }
-  }
-  
-  ##heading angle from degree to radian and set facing direction to be 0
-  incdf1$heading <- incdf1$heading*pi/180
-  incdf1$heading <- incdf1$heading - pi
+}
 
-  try <- cpt.meanvar(incdf1$acceleration)
-  incdf1 <- incdf1[attr(try, "cpts")[1]+1:nrow(incdf1),]
-  incdf1 <- na.omit(incdf1)
-  incdf1$time <- incdf1$time - incdf1$time[1]
+##heading angle from degree to radian and set facing direction to be 0
+incdf1$heading <- incdf1$heading*pi/180
+incdf1$heading <- incdf1$heading - pi
 
-  time_end <- incdf1$time[nrow(incdf1)]+1/60
-  #position of point P
-  
-  df2 <- data.frame(time = 0:10)
-  df2$posxp <- df2$time * 0
-  time_stop <- incdf1$speed[1]/3
-  for(i in 1:nrow(df2)){
-    if (df2$time[i] <= time_stop){
-      df2$posyp[i] <- -time_end*incdf1$speed[1]+ df2$time[i]*incdf1$speed[1] - 3/2*df2$time[i]^2
-    }
-    else{
-      df2$posyp[i] <- -time_end*incdf1$speed[1]+ time_stop*incdf1$speed[1] - 3/2*time_stop^2
-    }
+try <- cpt.meanvar(incdf1$acceleration)
+incdf1 <- incdf1[attr(try, "cpts")[1]+1:nrow(incdf1),]
+incdf1 <- na.omit(incdf1)
+incdf1$time <- incdf1$time - incdf1$time[1]
+
+time_end <- incdf1$time[nrow(incdf1)]+1/60
+#position of point P
+
+df2 <- data.frame(time = 0:10)
+df2$posxp <- df2$time * 0
+time_stop <- incdf1$speed[1]/3
+for(k in 1:nrow(df2)){
+  if (df2$time[k] <= time_stop){
+    df2$posyp[k] <- -time_end*incdf1$speed[1]+ df2$time[k]*incdf1$speed[1] - 3/2*df2$time[k]^2
+     }
+  else{
+    df2$posyp[k] <- -time_end*incdf1$speed[1]+ time_stop*incdf1$speed[1] - 3/2*time_stop^2
   }
-  
-  #position of point Q
-  incdf1$posxq <- (time_end - incdf1$time) *15.6464
-  incdf1$posyq <- incdf1$time*0
+}
+
+#position of point Q
+df2$posxq <- (time_end - df2$time) *15.6464
+df2$posyq <- df2$time*0
+
+p <- data.frame(x = df2$posxp, y = df2$posyp, t = df2$time)
+q <- data.frame(x = df2$posxq, y = df2$posyq, t = df2$time)
+pq <- rbind(p, q)
+pq %>% plot_ly(
+  x = ~x,
+  y = ~y,
+  frame = ~t,
+  type = 'scatter',
+  mode = 'markers',
+  showlegend = F
+)
+
+for(k in 1:nrow(df2)){
+  if (time_end <= time_stop){
+    Zp <- (time_end*incdf1$speed[1]+ time_end*incdf1$speed[1] - 3/2*time_end^2)/incdf1$speed[1]
+  }
+  else{
+    Zp<- (time_end*incdf1$speed[1]+ time_stop*incdf1$speed[1] - 3/2*time_stop^2)/incdf1$speed[1]
+  }
+}
