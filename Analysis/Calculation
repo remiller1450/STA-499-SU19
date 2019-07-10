@@ -1,3 +1,14 @@
+
+library(R.matlab) # Reads matlab files
+library(stringr) # String manipulation
+library(readr) # Gets numbers outof complex strings
+library(changepoint)
+
+# NOTE: should have the folder "MatFiles" downloaded and extracted to the location below
+# Should have the files "disposition.xls" and "randomization.xlsx" in locations below
+
+## Grab all of the .mat Files from directory H:\V2VMAT\MatFiles
+files <- list.files("C:\\Users\\jindalta\\OneDrive - Grinnell College\\MatFiles")
 m1 <- readMat(paste0("C:\\Users\\jindalta\\OneDrive - Grinnell College\\MatFiles\\",files[1]))
 part1speed <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Speed')]]
 part1time <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'Time')]]
