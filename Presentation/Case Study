@@ -1,5 +1,8 @@
 library(R.matlab) # Reads matlab files
 library(stringr) # String manipulation
+library(readr) # Gets numbers outof complex strings
+library(changepoint)
+library(plotly)
 
 # NOTE: should have the folder "MatFiles" downloaded and extracted to the location below
 # Should have the files "disposition.xls" and "randomization.xlsx" in locations below
@@ -9,6 +12,7 @@ files <- list.files("C:\\Users\\jindalta\\OneDrive - Grinnell College\\MatFiles"
 
 ## Read in the first one (ID is 20171207192921)
 m1 <- readMat(paste0("C:\\Users\\jindalta\\OneDrive - Grinnell College\\MatFiles\\",files[1]))
+
 part1speed <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Speed')]]
 part1time <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'Time')]]
 part1heading <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Heading')]]
@@ -16,17 +20,42 @@ part1logstream <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'SCC.LogStreams'
 
 df1 <- data.frame("time" =  part1time,"speed" = part1speed,"heading" = part1heading, "logstream" = part1logstream)
 
-incdf1 <- df1[which(df1$logstream != 0),names(df1) %in% c("time","speed","heading","logstream")]
+incdf1 <- df1[which(df1$logstream != 0 & df1$logstream != 3),names(df1) %in% c("time","speed","heading","logstream")]
 
-incdf1$time <- incdf1$time - incdf1$time[1]
 incdf1$speed <- 0.44704*incdf1$speed
+for (j in 1:length(incdf1$time)) {
+  if (j ==1) {
+    incdf1$acceleration[j] = 0
+    incdf1$wheel[j] = 0
+  }
+  else{
+    incdf1$acceleration[j] <- (incdf1$speed[j] -  incdf1$speed[j-1])  * 60
+    incdf1$wheel[j] <- (incdf1$heading[j] - incdf1$heading[j-1] * 60)
+  }
+}
 
 ##heading angle from degree to radian and set facing direction to be 0
 incdf1$heading <- incdf1$heading*pi/180
 incdf1$heading <- incdf1$heading - pi
 
+try1 <- cpt.meanvar(incdf1$acceleration)
+try2 <- cpt.meanvar(incdf1$heading)
 
-#10.2 is time at which logstream ==3-- will be automated later
+if (attr(try1, "cpts")[1] < attr(try2, "cpts")[1] || incdf1$heading[attr(try, "cpts")[1]] < 1){
+  try <- try1
+} else{
+  try <- try2
+}
+
+time_change <- incdf1$time[match(TRUE, incdf1$logstream == 2)]
+speed_Q <- incdf1$speed[match(TRUE, incdf1$logstream == 2)]
+incdf1$time <- incdf1$time - time_change
+time_end <- 2.90 - incdf1$time[attr(try, "cpts")[1]]
+incdf1 <- incdf1[attr(try, "cpts")[1]:nrow(incdf1),]
+incdf1 <- na.omit(incdf1)
+incdf1$time <- incdf1$time - incdf1$time[1]
+acc <- (incdf1$speed[incdf1$acceleration==min(incdf1$acceleration)] - incdf1$speed[incdf1$time == 0])/ incdf1$time[incdf1$acceleration == min(incdf1$acceleration)]
+
 #position of point P
 for (i in 1:length(incdf1$time)){
   if (i!=1){
@@ -34,13 +63,13 @@ for (i in 1:length(incdf1$time)){
     incdf1$posxp[i] <- incdf1$speed[i]/60*-sin(incdf1$heading[i])+incdf1$posxp[i-1]
   }
   else{
-    incdf1$posyp[i] <- incdf1$speed[i]/60*cos(incdf1$heading[i]) - 10.2*incdf1$speed[i]
+    incdf1$posyp[i] <- incdf1$speed[i]/60*cos(incdf1$heading[i]) - time_end*incdf1$speed[i]
     incdf1$posxp[i] <- incdf1$speed[i]/60*-sin(incdf1$heading[i])
   }
 }
 
 #position of point Q
-incdf1$posxq <- (10.2 - incdf1$time) *15.6464
+incdf1$posxq <- (time_end - incdf1$time) *15.6464
 incdf1$posyq <- incdf1$time*0
 
 p <- data.frame(x = incdf1$posxp, y = incdf1$posyp, t = incdf1$time)
@@ -57,7 +86,7 @@ pl <- df %>%
     mode = 'markers',
     showlegend = F
   )
-  
+
 pl
 
 Zero <- data.frame(x = 0, y = 0)
