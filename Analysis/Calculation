@@ -34,10 +34,19 @@ for (j in 1:length(incdf1$time)) {
 incdf1$heading <- incdf1$heading*pi/180
 incdf1$heading <- incdf1$heading - pi
 
-try <- cpt.meanvar(incdf1$acceleration)
+try1 <- cpt.meanvar(incdf1$acceleration)
+try2 <- cpt.meanvar(incdf1$heading)
+
+if (attr(try1, "cpts")[1] < attr(try2, "cpts")[1] || incdf1$heading[attr(try, "cpts")[1]] < 1){
+  try <- try1
+} else{
+  try <- try2
+}
+
 incdf1 <- incdf1[attr(try, "cpts")[1]+1:nrow(incdf1),]
 incdf1 <- na.omit(incdf1)
 incdf1$time <- incdf1$time - incdf1$time[1]
+acc <- (min(incdf1$acceleration) - incdf1$acceleration[incdf1$time == 0])/ incdf1$time[incdf1$acceleration == min(incdf1$acceleration)]
 
 time_end <- incdf1$time[nrow(incdf1)]+1/60
 #position of point P
@@ -47,10 +56,10 @@ df2$posxp <- df2$time * 0
 time_stop <- incdf1$speed[1]/3
 for(k in 1:nrow(df2)){
   if (df2$time[k] <= time_stop){
-    df2$posyp[k] <- -time_end*incdf1$speed[1]+ df2$time[k]*incdf1$speed[1] - 3/2*df2$time[k]^2
-     }
+    df2$posyp[k] <- -time_end*incdf1$speed[1]+ df2$time[k]*incdf1$speed[1] - acc/2*df2$time[k]^2
+  }
   else{
-    df2$posyp[k] <- -time_end*incdf1$speed[1]+ time_stop*incdf1$speed[1] - 3/2*time_stop^2
+    df2$posyp[k] <- -time_end*incdf1$speed[1]+ time_stop*incdf1$speed[1] - acc/2*time_stop^2
   }
 }
 
@@ -72,9 +81,9 @@ pq %>% plot_ly(
 
 for(k in 1:nrow(df2)){
   if (time_end <= time_stop){
-    Zp <- (time_end*incdf1$speed[1]+ time_end*incdf1$speed[1] - 3/2*time_end^2)/incdf1$speed[1]
+    Zp <- (time_end*incdf1$speed[1]+ time_end*incdf1$speed[1] - acc/2*time_end^2)/incdf1$speed[1]
   }
   else{
-    Zp <- (time_end*incdf1$speed[1]+ time_stop*incdf1$speed[1] - 3/2*time_stop^2)/incdf1$speed[1]
+    Zp <- (time_end*incdf1$speed[1]+ time_stop*incdf1$speed[1] - acc/2*time_stop^2)/incdf1$speed[1]
   }
 }
