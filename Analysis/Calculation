@@ -46,7 +46,8 @@ if (attr(try1, "cpts")[1] < attr(try2, "cpts")[1] || incdf1$heading[attr(try, "c
 incdf1 <- incdf1[attr(try, "cpts")[1]+1:nrow(incdf1),]
 incdf1 <- na.omit(incdf1)
 incdf1$time <- incdf1$time - incdf1$time[1]
-acc <- (min(incdf1$acceleration) - incdf1$acceleration[incdf1$time == 0])/ incdf1$time[incdf1$acceleration == min(incdf1$acceleration)]
+acc <- (incdf1$speed[incdf1$acceleration==min(incdf1$acceleration)] - incdf1$speed[incdf1$time == 0])/ incdf1$time[incdf1$acceleration == min(incdf1$acceleration)]
+
 
 time_end <- incdf1$time[nrow(incdf1)]+1/60
 #position of point P
