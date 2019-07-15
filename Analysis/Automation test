@@ -35,7 +35,7 @@ for (i in 1:length(files)){
     incdf1 <- df1[which(df1$logstream != 0 & df1$logstream != 3),names(df1) %in% c("time","speed","heading","logstream")]
     
     ##speed from mph into m/s
-    incdf1$speed <- 0.44704*incdf1$speed
+    incdf1$speed <- 0.44704*incdf1$speed 
     
     ##heading angle from degree to radian and set facing direction to be 0
     incdf1$heading <- incdf1$heading*pi/180
