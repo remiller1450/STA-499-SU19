@@ -17,7 +17,8 @@ df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character
 for (i in 1:length(files)){
   pos <- which(disp$DaqName2 == files[i])
   ID <- parse_number(disp[pos, ]$DaqPath)
-  if (str_sub(disp[pos, ]$DaqPath, -2, -1) == "MN" & ID <= 180 & disp$Reduced[pos] == "X"){
+  ## select all MN files
+  if (str_sub(disp[pos, ]$DaqPath, -2, -1) == "MN" & ID <= 180){
     alert_char <- rand[which(rand$`Participant#` == ID),]$Characteristic
     alert_level <- rand[which(rand$`Participant#` == ID),]$AlertLevel
     
@@ -31,16 +32,17 @@ for (i in 1:length(files)){
     part1logstream <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'SCC.LogStreams')]][,1]
     
     df1 <- data.frame("time" =  part1time,"speed" = part1speed,"heading" = part1heading, "logstream" = part1logstream)
-    
+    ## only look at logstream 2
     incdf1 <- df1[which(df1$logstream != 0 & df1$logstream != 3),names(df1) %in% c("time","speed","heading","logstream")]
     
     ##speed from mph into m/s
-    incdf1$speed <- 0.44704*incdf1$speed 
+    incdf1$speed <- 0.44704*incdf1$speed
     
     ##heading angle from degree to radian and set facing direction to be 0
     incdf1$heading <- incdf1$heading*pi/180
     incdf1$heading <- incdf1$heading - pi
     
+    ##finding acceleration
     for (j in 1:length(incdf1$time)) {
       if (j ==1) {
         incdf1$acceleration[j] = 0
@@ -51,27 +53,34 @@ for (i in 1:length(files)){
         incdf1$wheel[j] <- (incdf1$heading[j] - incdf1$heading[j-1]) * 60
       }
     }
+    ##set initial acceleration
+    incdf1$acceleration[1] <- incdf1$acceleration[2]
     
+    ## change point detection for acceleration and wheel angle
     try1 <- cpt.meanvar(incdf1$acceleration)
     try2 <- cpt.meanvar(incdf1$wheel)
     
+    ##find first reaction
     if (attr(try1, "cpts")[1] < attr(try2, "cpts")[1] || incdf1$wheel[attr(try, "cpts")[1]] < 1){
       try <- try1
     } else{
       try <- try2
     }
     
+    ##change time so that t0 is first reaction 
     time_change <- incdf1$time[match(TRUE, incdf1$logstream == 2)]
+    ##speed of car Q == speed of car P at logstream 2
     speed_Q <- incdf1$speed[match(TRUE, incdf1$logstream == 2)]
     incdf1$time <- incdf1$time - time_change
+    ##predicted colision (2.9s)
     time_end <- 2.90 - incdf1$time[attr(try, "cpts")[1]]
+    ##new incdf1
     incdf1 <- incdf1[attr(try, "cpts")[1]:nrow(incdf1),]
     incdf1 <- na.omit(incdf1)
     incdf1$time <- incdf1$time - incdf1$time[1]
+    ##breaking (acceleration decreasing)
+    if (incdf1$acceleration[1]-min(incdf1$acceleration)>=0.2){
     acc <- (incdf1$speed[incdf1$acceleration==min(incdf1$acceleration)] - incdf1$speed[incdf1$time == 0])/ incdf1$time[incdf1$acceleration == min(incdf1$acceleration)]
-    
-    #position of point P
-    
     df2 <- data.frame(time = 0:10)
     df2$posxp <- df2$time * 0
     time_stop <- -incdf1$speed[1]/acc
@@ -83,13 +92,19 @@ for (i in 1:length(files)){
         df2$posyp[k] <- -time_end*incdf1$speed[1]+ time_stop*incdf1$speed[1] + acc/2*time_stop^2
       }
     }
-    
+    }
+    ##accelerating
+    else if (incdf1$acceleration[1]-max(incdf1$acceleration)>=0.2){
+    df2 <- data.frame(time = 0:10)
+    df2$posxp <- df2$time * 0
+    for(k in 1:nrow(df2)){
+        df2$posyp[k] <- -time_end*incdf1$speed[1]+ df2$time[k]*incdf1$speed[1] + acc/2*df2$time[k]^2
+    }
     #position of point Q
     df2$posxq <- (time_end - df2$time) *speed_Q
     df2$posyq <- df2$time*0
     
   
-    
     if (time_end <= time_stop){
       Zp <- (time_end*incdf1$speed[1]- time_end*incdf1$speed[1] - acc/2*time_end^2)/incdf1$speed[1]
     } else{
@@ -97,15 +112,18 @@ for (i in 1:length(files)){
     }
     
     
-    
-    
     de <- data.frame(Part_ID = ID, Alert_C = alert_char, Alert_L = alert_level, Safety = Zp)
     df <- rbind(df, de)
     
     
     
-    
-    
-    
   }
-}
+}}
+
+
+##error log:Error in if (attr(try1, "cpts")[1] < attr(try2, "cpts")[1] || incdf1$wheel[attr(try,  : 
+  missing value where TRUE/FALSE needed
+  
+  files such as 15 have increasing speed
+  
+  did not include turning yet. 
