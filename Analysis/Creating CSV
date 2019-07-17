@@ -1,7 +1,7 @@
-files <- list.files("~//Desktop//MAP//MatFiles")
-disp <- readxl::read_excel("~//Desktop//MAP//disposition.xls")
+files <- list.files("H:\\V2VMAT\\MatFiles")
+disp <- readxl::read_excel("H:\\V2VMAT\\disposition.xls")
 disp$DaqName2 <- str_replace(disp$DaqName, ".daq", ".mat")
-rand <- readxl::read_excel("~//Desktop//MAP//randomization.xlsx")
+rand <- readxl::read_excel("H:\\V2VMAT\\randomization.xlsx")
 rand$`Participant#`<- as.numeric(rand$`Participant#`)
 df_total <- data.frame(Part_ID = numeric(), speed = numeric(), heading = numeric(), acceleration = numeric(), wheel = numeric(), time = numeric(), logstream = numeric(), collision = numeric())
 
@@ -11,7 +11,7 @@ for (i in 1:length(files)){
   if (str_sub(disp[pos, ]$DaqPath, -2, -1) == "MN" & ID <= 180){
     alert_char <- rand[which(rand$`Participant#` == ID),]$Characteristic
     alert_level <- rand[which(rand$`Participant#` == ID),]$AlertLevel
-    m1 <- readMat(paste0("~//Desktop//MAP//MatFiles//",files[i]))
+    m1 <- readMat(paste0("H:\\V2VMAT\\MatFiles\\",files[i]))
     part1speed <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Speed')]]
     part1time <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'Time')]]
     part1heading <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Heading')]]
@@ -37,6 +37,12 @@ for (i in 1:length(files)){
         incdf1$wheel[j] <- (incdf1$heading[j] - incdf1$heading[j-1]) * 60
       }
     }
-    df_tot <- data.frame(Part_ID = rep(ID, length(incdf1$speed)), speed = incdf1$speed, heading = incdf1$heading, acceleration = incdf1$acceleration wheel = incdf1$wheel, time = incdf1$time, logstream = incdf1$logstream, collision = incdf1$collision)
+    incdf1$wheel[1] <- incdf1$wheel[2]
+    incdf1$acceleration[1] <- incdf1$acceleration[2]
+    
+    df_tot <- data.frame(Part_ID = rep(ID, length(incdf1$speed)), speed = incdf1$speed, heading = incdf1$heading, acceleration = incdf1$acceleration, wheel = incdf1$wheel, time = incdf1$time, logstream = incdf1$logstream, collision = incdf1$collision)
     df_total <- rbind(df_total, df_tot)
-    }
+
+  }
+}
+write.csv(df_total,"H:\\V2VMAT\\haptic_data.csv")
