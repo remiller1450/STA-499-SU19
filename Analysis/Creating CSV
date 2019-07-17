@@ -1,0 +1,42 @@
+files <- list.files("~//Desktop//MAP//MatFiles")
+disp <- readxl::read_excel("~//Desktop//MAP//disposition.xls")
+disp$DaqName2 <- str_replace(disp$DaqName, ".daq", ".mat")
+rand <- readxl::read_excel("~//Desktop//MAP//randomization.xlsx")
+rand$`Participant#`<- as.numeric(rand$`Participant#`)
+df_total <- data.frame(Part_ID = numeric(), speed = numeric(), heading = numeric(), acceleration = numeric(), wheel = numeric(), time = numeric(), logstream = numeric(), collision = numeric())
+
+for (i in 1:length(files)){
+  pos <- which(disp$DaqName2 == files[i])
+  ID <- parse_number(disp[pos, ]$DaqPath)
+  if (str_sub(disp[pos, ]$DaqPath, -2, -1) == "MN" & ID <= 180){
+    alert_char <- rand[which(rand$`Participant#` == ID),]$Characteristic
+    alert_level <- rand[which(rand$`Participant#` == ID),]$AlertLevel
+    m1 <- readMat(paste0("~//Desktop//MAP//MatFiles//",files[i]))
+    part1speed <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Speed')]]
+    part1time <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'Time')]]
+    part1heading <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'VDS.Veh.Heading')]]
+    part1logstream <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'SCC.LogStreams')]][,1]
+    part1coll <- m1$elemDataI[[which(rownames(m1$elemDataI) == 'SCC.Collision.Count')]]
+    df1 <- data.frame("time" =  part1time,"speed" = part1speed,"heading" = part1heading, "logstream" = part1logstream, "collision" = part1coll)
+    
+    incdf1 <- df1[which(df1$logstream != 0 & df1$logstream != 3),names(df1) %in% c("time","speed","heading","logstream", "collision")]
+    
+    incdf1$speed <- 0.44704*incdf1$speed
+    
+    ##heading angle from degree to radian and set facing direction to be 0
+    incdf1$heading <- incdf1$heading*pi/180
+    incdf1$heading <- incdf1$heading - pi
+    
+    for (j in 1:length(incdf1$time)) {
+      if (j ==1) {
+        incdf1$acceleration[j] = 0
+        incdf1$wheel[j] = 0
+      }
+      else{
+        incdf1$acceleration[j] <- (incdf1$speed[j] -  incdf1$speed[j-1])  * 60
+        incdf1$wheel[j] <- (incdf1$heading[j] - incdf1$heading[j-1]) * 60
+      }
+    }
+    df_tot <- data.frame(Part_ID = rep(ID, length(incdf1$speed)), speed = incdf1$speed, heading = incdf1$heading, acceleration = incdf1$acceleration wheel = incdf1$wheel, time = incdf1$time, logstream = incdf1$logstream, collision = incdf1$collision)
+    df_total <- rbind(df_total, df_tot)
+    }
