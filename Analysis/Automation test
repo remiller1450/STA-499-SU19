@@ -61,7 +61,7 @@ for (i in 1:length(files)){
     try2 <- cpt.meanvar(incdf1$wheel)
     
     ##find first reaction
-    if (attr(try1, "cpts")[1] < attr(try2, "cpts")[1] || incdf1$wheel[attr(try, "cpts")[1]] < 1){
+    if (attr(try1, "cpts")[1] < attr(try2, "cpts")[1] || incdf1$wheel[attr(try2, "cpts")[1]] < 1){
       try <- try1
     } else{
       try <- try2
@@ -121,9 +121,8 @@ for (i in 1:length(files)){
 }}
 
 
-##error log:Error in if (attr(try1, "cpts")[1] < attr(try2, "cpts")[1] || incdf1$wheel[attr(try,  : 
-  missing value where TRUE/FALSE needed
-  
+###
+
   files such as 15 have increasing speed
   
   did not include turning yet. 
