@@ -14,8 +14,8 @@ rand <- readxl::read_excel("H:\\V2VMAT\\randomization.xlsx")
 rand$`Participant#`<- as.numeric(rand$`Participant#`)
 df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character(), Safety = numeric())
 
-for (i in 1){
-  pos <- which(disp$DaqName2 == files[1])
+for (i in 1:length(files)){
+  pos <- which(disp$DaqName2 == files[i])
   ID <- parse_number(disp[pos, ]$DaqPath)
   ## select all MN files
   if (str_sub(disp[pos, ]$DaqPath, -2, -1) == "MN" & ID <= 180){
@@ -88,12 +88,10 @@ for (i in 1){
     
     
     ##breaking (acceleration decreasing)
-    if (incdf1$speed[6] < incdf1$speed[0]){
+    if (incdf1$speed[6] < incdf1$speed[1]){
       acc <- (incdf1$speed[incdf1$acceleration==min(incdf1$acceleration)] - incdf1$speed[incdf1$time == 0])/ incdf1$time[incdf1$acceleration == min(incdf1$acceleration)]
-    }
-    time_stop <- -incdf1$speed[1]/acc
-    ##accelerating
-    else {
+      time_stop <- -incdf1$speed[1]/acc
+      } else {
       acc <- (incdf1$speed[incdf1$acceleration==max(incdf1$acceleration)] - incdf1$speed[incdf1$time == 0])/ incdf1$time[incdf1$acceleration == max(incdf1$acceleration)]
       time_stop <- 100
     }
