@@ -14,8 +14,8 @@ rand <- readxl::read_excel("H:\\V2VMAT\\randomization.xlsx")
 rand$`Participant#`<- as.numeric(rand$`Participant#`)
 df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character(), Safety = numeric())
 
-for (i in 1:length(files)){
-  pos <- which(disp$DaqName2 == files[i])
+for (i in 1){
+  pos <- which(disp$DaqName2 == files[1])
   ID <- parse_number(disp[pos, ]$DaqPath)
   ## select all MN files
   if (str_sub(disp[pos, ]$DaqPath, -2, -1) == "MN" & ID <= 180){
@@ -67,12 +67,9 @@ for (i in 1:length(files)){
       try <- try2
     }
     
+   
     
-    ## 
-    
-    df2$xspeed[k] <- incdf1[k]+df2$time*acc
-    df2$wheel
-    df2$posxp[k] <- df2$speed[i]*-sin(df2$heading[k])+incdf1$posxp[i-1]
+    minwheel <- max(abs(incdf1$wheel[1:60]))*1.2
     
     
     
@@ -91,19 +88,19 @@ for (i in 1:length(files)){
     
     
     ##breaking (acceleration decreasing)
-    if (abs(min(incdf1$acceleration)) >= abs(max(incdf1$acceleration))){
+    if (incdf1$speed[6] < incdf1$speed[0]){
       acc <- (incdf1$speed[incdf1$acceleration==min(incdf1$acceleration)] - incdf1$speed[incdf1$time == 0])/ incdf1$time[incdf1$acceleration == min(incdf1$acceleration)]
     }
     time_stop <- -incdf1$speed[1]/acc
     ##accelerating
-    else (max(incdf1$acceleration)-incdf1$acceleration[1]>=0.2){
+    else {
       acc <- (incdf1$speed[incdf1$acceleration==max(incdf1$acceleration)] - incdf1$speed[incdf1$time == 0])/ incdf1$time[incdf1$acceleration == max(incdf1$acceleration)]
       time_stop <- 100
     }
     
     ##calculating Zp when Zq is 0
     ##not steering
-    if (abs(max(abs(df1$heading[(match(TRUE,df1$logstream == 1)-120):match(TRUE,df1$logstream == 1)]))-180)*1.2 >= max(abs(incdf1$heading)))
+    if (minwheel >= max(abs(incdf1$wheel)))
     {
       
     if (time_end <= time_stop){
@@ -117,11 +114,12 @@ for (i in 1:length(files)){
     else{
       wheel <- (incdf1$heading[which.max(abs(incdf1$wheel))]-0)/incdf1$time[which.max(abs(incdf1$wheel))]
       ## t is the variable time 
-      t <- 2
+  
       heading <- t * wheel
+      Posqy <- 0
       Posqx <- (time_end - t) *speed_Q
-      Pospy <- -time_end*incdf1$speed[1]+incdf1$speed[1]*t+acc*cos(heading)*t^2/2
-      Pospx <- acc*sin(heading)*t^2/2
+      Pospy <- -time_end*incdf1$speed[1]+incdf1$speed[1]*t+acc*(wheel*t*sin(heading)+cos(heading))/wheel^2
+      Pospx <- acc*(sin(heading)-wheel*t*cos(heading))/wheel^2
       
     }
     
@@ -132,4 +130,15 @@ for (i in 1:length(files)){
   }
 }
 
-## steering else loop not tested yet
+qx_px <- function(t, time_end, speed_Q, wheel, acc){
+  (time_end - t)*speed_Q-acc*(sin(wheel*t)-wheel*t*cos(wheel*t))/wheel^2
+}
+py <- function(t, time_end, speed_P, wheel, acc){
+  
+  -time_end*speed_P+speed_P*t+acc*(wheel*t*sin(wheel*t)+cos(wheel*t))/wheel^2
+}
+
+result <- uniroot(qx_px, time_end = time_end, speed_Q = speed_Q, wheel = wheel, acc = acc, interval = c(0,100))
+Zp <- py(result$root,time_end,incdf1$speed[1],wheel,acc)/incdf1$speed[1]
+
+py(result$root,time_end,incdf1$speed[1],wheel,acc)
