@@ -1,8 +1,9 @@
 library(R.matlab) # Reads matlab files
 library(stringr) # String manipulation
-library(readr)
-# NOTE: should have the folder "MatFiles" downloaded and extracted to the location below
-# Should have the files "disposition.xls" and "randomization.xlsx" in locations below
+library(readr) # Gets numbers outof complex strings
+library(changepoint)
+library(plotly)
+library(dplyr)
 
 ## Grab all of the .mat Files from directory H:\V2VMAT\MatFiles
 files <- list.files("C:\\Users\\jindalta\\OneDrive - Grinnell College\\MatFiles")
@@ -16,9 +17,55 @@ for (i in 1:length(files)){
   pos <- which(disp$DaqName2 == files[i])
   ID <- parse_number(disp[pos, ]$DaqPath)
   if (str_sub(disp[pos, ]$DaqPath, -2, -1) == "MN" & ID <= 180){
-  alert_char <- rand[which(rand$`Participant#` == ID),]$Characteristic
-  alert_level <- rand[which(rand$`Participant#` == ID),]$AlertLevel
-  de <- data.frame(Part_ID = ID, Alert_C = alert_char, Alert_L = alert_level, Safety = 0)
-  df <- rbind(df, de)
+    alert_char <- rand[which(rand$`Participant#` == ID),]$Characteristic
+    alert_level <- rand[which(rand$`Participant#` == ID),]$AlertLevel
+    de <- data.frame(Part_ID = ID, Alert_C = alert_char, Alert_L = alert_level, Safety = 0)
+    df <- rbind(df, de)
   }
+}
+
+calc <- function(acceleration, wheel, time, logstream, speed, heading){
+  try1 <- cpt.meanvar(acceleration)
+  try2 <- cpt.meanvar(wheel)
+  if (attr(try1, "cpts")[1] < attr(try2, "cpts")[1] || abs(wheel[attr(try2, "cpts")[1]]) < 0.1){
+    try <- try1
+  } else{
+    try <- try2
   }
+  time_change <- time[match(TRUE, logstream == 2)]
+  speed_Q <- speed[match(TRUE, logstream == 2)]
+  time <- time - time_change
+  time_end <- 2.90 - time[attr(try, "cpts")[1]]
+  
+  incdf1 <- data.frame(acceleration = acceleration, wheel = wheel, time = time, logstream = logstream, speed = speed)
+  incdf1 <- incdf1[attr(try, "cpts")[1]:nrow(incdf1),]
+  incdf1 <- na.omit(incdf1)
+  incdf1$time <- incdf1$time - incdf1$time[1]
+  if (abs(min(incdf1$acceleration)) >= abs(max(incdf1$acceleration))){
+    acc <- (incdf1$speed[incdf1$acceleration==min(incdf1$acceleration)] - incdf1$speed[incdf1$time == 0])/ incdf1$time[incdf1$acceleration == min(incdf1$acceleration)]
+  }
+  else{
+    acc <- (incdf1$speed[incdf1$acceleration==max(incdf1$acceleration)] - incdf1$speed[incdf1$time == 0])/ incdf1$time[incdf1$acceleration == max(incdf1$acceleration)]
+  }
+
+  if (abs(min(incdf1$wheel)) >= abs(max(incdf1$wheel))){
+    whl <- (incdf1$heading[incdf1$wheel==min(incdf1$wheel)] - incdf1$heading[incdf1$time == 0])/ incdf1$time[incdf1$wheel == min(incdf1$wheel)]
+  }
+  else{
+    whl <- (incdf1$heading[incdf1$wheel==max(incdf1$wheel)] - incdf1$heading[incdf1$time == 0])/ incdf1$time[incdf1$wheel == max(incdf1$wheel)]
+  }
+  time_stop <- incdf1$speed[1]/3
+  if (time_end <= time_stop){
+    Zp <- (time_end*incdf1$speed[1]- time_end*incdf1$speed[1] - acc/2*time_end^2)/incdf1$speed[1]
+  } else{
+    Zp <- (time_end*incdf1$speed[1]- time_stop*incdf1$speed[1] - acc/2*time_stop^2)/incdf1$speed[1]
+  }
+  return(Zp)
+}
+
+haptic_dat <- data %>% group_by(Part_ID) %>% summarize(calc(data$acceleration, data$wheel, data$time, data$logstream, data$speed, data$heading))
+
+    
+    de <- data.frame(Part_ID = ID, Alert_C = alert_char, Alert_L = alert_level, Safety = Zp)
+    df <- rbind(df, de)
+}
