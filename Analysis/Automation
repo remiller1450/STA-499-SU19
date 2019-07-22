@@ -11,6 +11,7 @@ disp <- readxl::read_excel("C:\\Users\\jindalta\\OneDrive - Grinnell College\\di
 disp$DaqName2 <- str_replace(disp$DaqName, ".daq", ".mat")
 rand <- readxl::read_excel("C:\\Users\\jindalta\\OneDrive - Grinnell College\\randomization.xlsx")
 rand$`Participant#`<- as.numeric(rand$`Participant#`)
+data <- read.csv("C:\\Users\\jindalta\\OneDrive - Grinnell College\\haptic_data.csv")
 df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character(), Safety = numeric())
 
 for (i in 1:length(files)){
