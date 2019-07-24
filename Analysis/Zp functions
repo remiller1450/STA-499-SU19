@@ -1,110 +1,95 @@
-library(R.matlab) # Reads matlab files
-library(stringr) # String manipulation
-library(readr)
-library(raster)
-library(changepoint)
-# NOTE: should have the folder "MatFiles" downloaded and extracted to the location below
-# Should have the files "disposition.xls" and "randomization.xlsx" in locations below
-
-## Grab all of the .mat Files from directory H:\\V2VMAT\\MatFiles
-files <- list.files("H:\\V2VMAT\\MatFiles")
-disp <- readxl::read_excel("H:\\V2VMAT\\disposition.xls")
-disp$DaqName2 <- str_replace(disp$DaqName, ".daq", ".mat")
-rand <- readxl::read_excel("H:\\V2VMAT\\randomization.xlsx")
-rand$`Participant#`<- as.numeric(rand$`Participant#`)
 df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character(), Safety = numeric())
-data <- read.csv("H:\\V2VMAT\\haptic_data.csv")
-
-
-for (i in 1:unique(data$Part_ID)){
-  ## select all MN files
+ data <- read.csv("H:\\V2VMAT\\haptic_data.csv")
+ 
    
-    m1 <- data[data$Part_ID==1,]
-    
-    
-    
-    ## change point detection for acceleration and wheel angle
-    try1 <- cpt.meanvar(m1$acceleration)
-    try2 <- cpt.meanvar(m1$wheel)
-    
-    ##find first reaction
-    if (attr(try1, "cpts")[1] < attr(try2, "cpts")[1]){
-      try <- try1
-    } else{
-      try <- try2
-    }
-    
-    
-    
-    minwheel <- max(abs(m1$wheel[1:60]))*1.2
-    
-    
-    
-    ##change time so that t0 is first reaction 
-    time_change <- m1$time[match(TRUE, m1$logstream == 2)]
-    ##speed of car Q == speed of car P at logstream 2
-    speed_Q <- m1$speed[match(TRUE, m1$logstream == 2)]
-    m1$time <- m1$time - time_change
-    ##predicted colision (2.9s)
-    time_end <- 2.90 - m1$time[attr(try, "cpts")[1]]
-    ##new incdf1
-    m1 <- m1[attr(try, "cpts")[1]:nrow(m1),]
-    m1 <- na.omit(m1)
-    m1$time <- m1$time - m1$time[1]
-    
-    
-    
-    ##breaking (acceleration decreasing)
-    if (m1$speed[6] < m1$speed[1]){
-      acc <- (m1$speed[m1$acceleration==min(m1$acceleration)] - m1$speed[m1$time == 0])/ m1$time[m1$acceleration == min(m1$acceleration)]
-      time_stop <- -m1$speed[1]/acc
-    } else {
-      acc <- (m1$speed[m1$acceleration==max(m1$acceleration)] - m1$speed[m1$time == 0])/ m1$time[m1$acceleration == max(m1$acceleration)]
-      time_stop <- 100
-    }
-    
-    ##calculating Zp when Zq is 0
-    ##not steering
-    if (minwheel >= max(abs(m1$wheel)))
-    {
-      
-      if (time_end <= time_stop){
-        Zp <- (time_end*m1$speed[1]- time_end*m1$speed[1] - acc/2*time_end^2)/m1$speed[1]
-      } else{
-        Zp <- (time_end*m1$speed[1]- time_stop*m1$speed[1] - acc/2*time_stop^2)/m1$speed[1]
-      }
-    }
-    
-    ##steering
-      wheel <- (m1$heading[which.max(abs(m1$wheel))]-0)/m1$time[which.max(abs(m1$wheel))]
-      ## t is the variable time 
-      
-      heading <- t * wheel
-      Posqy <- 0
-      Posqx <- (time_end - t) *speed_Q
-      velpy <- (incdf1$speed[1] + acc*t)*cos(wheel*t)
-      Pospy <- -time_end*incdf1$speed[1]+(acc*cos(wheel*t)+wheel(incdf1$speed[1]+acc*t)*sin(wheel*t))/wheel*2
-      velpx <- -(incdf1$speed[1] + acc*t)*sin(wheel*t)
-      Pospx <- -incdf1$speed[1]/wheel +(-acc*sin(wheel*t)+wheel(incdf1$speed[1]+acc*t)*cos(wheel*t))/wheel*2
-      
-    
-    
-    de <- data.frame(Part_ID = ID, Alert_C = alert_char, Alert_L = alert_level, Safety = Zp)
-    df <- rbind(df, de)
-    
-    
-  }
-
-
-qx_px <- function(t, time_end, speed_Q, wheel, acc){
-  (time_end - t)*speed_Q-(-m1$speed[1]/wheel +(-acc*sin(wheel*t)+wheel(m1$speed[1]+acc*t)*cos(wheel*t))/wheel*2)
-}
-py <- function(t, time_end, speed_P, wheel, acc){
-  
-  -time_end*m1$speed[1]+(acc*cos(wheel*t)+wheel(m1$speed[1]+acc*t)*sin(wheel*t))/wheel*2
-}
-
-result <- uniroot(qx_px, time_end = time_end, speed_Q = speed_Q, wheel = wheel, acc = acc, interval = c(0,100))
-Zp <- py(result$root,time_end,incdf1$speed[1],wheel,acc)/incdf1$speed[1]
-
-py(result$root,time_end,incdf1$speed[1],wheel,acc)
+   for (i in 1:unique(data$Part_ID)){
+        
+           m1 <- data[data$Part_ID==1,]
+           
+             
+             ## change point detection for acceleration and wheel angle
+             
+             ##needs to be changed!!!
+             try1 <- cpt.meanvar(m1$acceleration)
+           try2 <- cpt.meanvar(m1$wheel)
+             
+               ##find first reaction
+               if (attr(try1, "cpts")[1] < attr(try2, "cpts")[1]){
+                   try <- try1
+                 } else{
+                     try <- try2
+                   }
+            
+              
+             minwheel <- max(abs(m1$wheel[1:60]))*1.2
+              
+              
+                 ##change time so that t0 is first reaction 
+                 time_change <- m1$time[match(TRUE, m1$logstream == 2)]
+                 ##speed of car Q == speed of car P at logstream 2
+                   speed_Q <- m1$speed[match(TRUE, m1$logstream == 2)]
+                   m1$time <- m1$time - time_change
+                 ##predicted colision (2.9s)
+                      time_end <- 2.90 - m1$time[attr(try, "cpts")[1]]
+                     ##new incdf1
+                       m1 <- m1[attr(try, "cpts")[1]:nrow(m1),]
+                       m1 <- na.omit(m1)
+                       m1$time <- m1$time - m1$time[1]
+                       
+                         
+                         
+                         ##breaking (acceleration decreasing)
+                         if (m1$speed[6] < m1$speed[1]){
+                             acc <- (m1$speed[m1$acceleration==min(m1$acceleration)] - m1$speed[m1$time == 0])/ m1$time[m1$acceleration == min(m1$acceleration)]
+                             time_stop <- -m1$speed[1]/acc
+                            } else {
+                               acc <- (m1$speed[m1$acceleration==max(m1$acceleration)] - m1$speed[m1$time == 0])/ m1$time[m1$acceleration == max(m1$acceleration)]
+                              time_stop <- 100
+                            }
+                       
+                         ##calculating Zp when Zq is 0
+                         ##not steering
+                         if (minwheel >= max(abs(m1$wheel)))
+                           {
+                             
+                               if (time_end <= time_stop){
+                                     Zp <- (time_end*m1$speed[1]- time_end*m1$speed[1] - acc/2*time_end^2)/m1$speed[1]
+                                   } else{
+                                       Zp <- (time_end*m1$speed[1]- time_stop*m1$speed[1] - acc/2*time_stop^2)/m1$speed[1]
+                                   }
+                             }
+                       else{
+                         ##steering
+                         ##avg wheel needs to be changed!!
+                             wheel <- (m1$heading[which.max(abs(m1$wheel))]-0)/m1$time[which.max(abs(m1$wheel))]
+                             
+                             ## t is the variable time 
+                             
+                             Posqy <- 0
+                             Posqx <- function(t, time_end, speed_Q){
+                                   (time_end - t) *speed_Q
+                                   }
+                             Pospy <- function(t, time_end, speed_P, wheel, acc){
+                                   -time_end*speed_P+(speed_P*sin(wheel*t)/wheel+acc*(wheel*t*sin(wheel*t)+cos(wheel*t))/wheel^2)-acc/wheel^2
+                                   }
+                             Pospx <- function(t, speed_P, wheel, acc){
+                                   -speed_P/wheel +(speed_P*cos(wheel*t)/wheel+acc*(-sin(wheel*t)+wheel*t*cos(wheel*t))/wheel^2)
+                                   }
+                                 
+                                   qx_px <- function(t, time_end, speed_Q, speed_P,wheel, acc){
+                                       Posqx(t, time_end, speed_Q)-Pospx(t, speed_P, wheel, acc)
+                                     }
+                                   
+                                   ##speed_P is m1$speed[1]  (initial speed for P)
+                                   ##Solving for t when qx = px
+                                   result <- uniroot(qx_px, time_end = time_end, speed_Q = speed_Q, speed_P = m1$speed[1], wheel = wheel, acc = acc, interval = c(0,10))
+                                   ##calculating Zp
+                                   Zp <- Pospy(result$root,time_end,m1$speed[1],wheel,acc)/m1$speed[1]
+                                   
+                                   ##recording the result
+                                   de <- data.frame(Part_ID = m1$Part_ID, Safety = Zp)
+                                   df <- rbind(df, de)
+                                     
+                                       
+                                     }
+                   }
