@@ -3,13 +3,13 @@ df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character
  
    
    for (i in 1:unique(data$Part_ID)){
+      ## select all MN files
         
            m1 <- data[data$Part_ID==1,]
            
              
+           
              ## change point detection for acceleration and wheel angle
-             
-             ##needs to be changed!!!
              try1 <- cpt.meanvar(m1$acceleration)
            try2 <- cpt.meanvar(m1$wheel)
              
@@ -60,36 +60,95 @@ df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character
                              }
                        else{
                          ##steering
-                         ##avg wheel needs to be changed!!
                              wheel <- (m1$heading[which.max(abs(m1$wheel))]-0)/m1$time[which.max(abs(m1$wheel))]
-                             
                              ## t is the variable time 
-                             
-                             Posqy <- 0
-                             Posqx <- function(t, time_end, speed_Q){
+                               
+                               heading <- t * wheel
+                               Posqy <- 0
+                              Posqx <- function(t, time_end, speed_Q){
                                    (time_end - t) *speed_Q
                                    }
+                             velpy <- (speed_P + acc*t)*cos(wheel*t)
                              Pospy <- function(t, time_end, speed_P, wheel, acc){
                                    -time_end*speed_P+(speed_P*sin(wheel*t)/wheel+acc*(wheel*t*sin(wheel*t)+cos(wheel*t))/wheel^2)-acc/wheel^2
+                                 
                                    }
-                             Pospx <- function(t, speed_P, wheel, acc){
-                                   -speed_P/wheel +(speed_P*cos(wheel*t)/wheel+acc*(-sin(wheel*t)+wheel*t*cos(wheel*t))/wheel^2)
-                                   }
+                               
+                                
+                                  
+                                 velpx <- -(m1$speed[1] + acc*t)*sin(wheel*t)
+                                 Pospx <- function(t, speed_P, wheel, acc){
+                                     -speed_P/wheel +(speed_P*cos(wheel*t)/wheel+acc*(-sin(wheel*t)+wheel*t*cos(wheel*t))/wheel^2)
+                                     }
                                  
                                    qx_px <- function(t, time_end, speed_Q, speed_P,wheel, acc){
                                        Posqx(t, time_end, speed_Q)-Pospx(t, speed_P, wheel, acc)
                                      }
                                    
-                                   ##speed_P is m1$speed[1]  (initial speed for P)
-                                   ##Solving for t when qx = px
-                                   result <- uniroot(qx_px, time_end = time_end, speed_Q = speed_Q, speed_P = m1$speed[1], wheel = wheel, acc = acc, interval = c(0,10))
-                                   ##calculating Zp
-                                   Zp <- Pospy(result$root,time_end,m1$speed[1],wheel,acc)/m1$speed[1]
+                                     result <- uniroot(qx_px, time_end = time_end, speed_Q = speed_Q, speed_P = m1$speed[1], wheel = wheel, acc = acc, interval = c(0,10))
+                                     Zp <- Pospy(result$root,time_end,m1$speed[1],wheel,acc)/m1$speed[1]
                                    
-                                   ##recording the result
-                                   de <- data.frame(Part_ID = m1$Part_ID, Safety = Zp)
-                                   df <- rbind(df, de)
+                                     de <- data.frame(Part_ID = m1$Part_ID, Safety = Zp)
+                                     df <- rbind(df, de)
                                      
                                        
                                      }
-                   }
+   }
+ 
+ length <- 15.74*0.3048
+ width <- 6.07*0.3048
+ diag <- sqrt(length^2 + width^2)/2
+ angle <- atan(length/width)
+ 
+ 
+ ##position of points p1-4, q1-4
+ Posp1x <- function(t, speed_P, wheel, acc){
+   Pospx(t,m1$speed[1],wheel,acc)-diag*sin(wheel*t+angle)
+ }
+ Posp1y <- function(t, time_end,speed_P, wheel, acc){
+   Pospy(t,time_end,m1$speed[1],wheel,acc)+diag*cos(wheel*t+angle)
+ }
+ Posp2x <- function(t, speed_P, wheel, acc){
+   Pospx(t,m1$speed[1],wheel,acc)+diag*sin(-wheel*t+angle)
+ }
+ Posp2y <- function(t, time_end,speed_P, wheel, acc){
+   Pospy(t,time_end,m1$speed[1],wheel,acc)+diag*cos(-wheel*t+angle)
+ }
+ Posp3x <- function(t, speed_P, wheel, acc){
+   Pospx(t,m1$speed[1],wheel,acc)-diag*sin(-wheel*t+angle)
+ }
+ Posp3y <- function(t, time_end,speed_P, wheel, acc){
+   Pospy(t,time_end,m1$speed[1],wheel,acc)-diag*cos(-wheel*t+angle)
+ }
+ Posp4x <- function(t, speed_P, wheel, acc){
+   Pospx(t,m1$speed[1],wheel,acc)+diag*sin(wheel*t+angle)
+ }
+ Posp4y <- function(t, time_end,speed_P, wheel, acc){
+   Pospy(t,time_end,m1$speed[1],wheel,acc)-diag*cos(wheel*t+angle)
+ }
+ 
+ Posq1x <- function(t, time_end, speed_Q){
+   Posqx(t,time_end,speed_Q)-length/2
+ }
+ Posq1y <- -width/2
+ Posq2x <- function(t, time_end, speed_Q){
+   Posqx(t,time_end,speed_Q)-length/2
+ }
+ Posq2y <- width/2
+ Posq3x <- function(t, time_end, speed_Q){
+   Posqx(t,time_end,speed_Q)+length/2
+ }
+ Posq3y <- width/2
+ Posq4x <- function(t, time_end, speed_Q){
+   Posqx(t,time_end,speed_Q)+length/2
+ }
+ Posq4y <- -width/2
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
