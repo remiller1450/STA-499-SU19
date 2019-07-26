@@ -146,3 +146,79 @@ df <- left_join(x = df, y = haptic_dat, by = "Part_ID")
 
 model <- lm(data = df, Zp ~ Alert_C)
 anova(model)
+
+
+
+
+df$INT <- "NA"
+df$IPI <- "NA"
+df$DIP <- "NA"
+
+for(i in 1:length(df$Part_ID)){
+  if (df$Alert_C[i] == "INT"){
+    df$IPI[i] <- "0ms"
+    df$DIP[i] <- "Left_only"
+    if (df$Alert_L[i] == 1){
+      df$INT[i] <- "30Hz"
+    }
+    else if (df$Alert_L[i] == 2){
+      df$INT[i] <- "40Hz"
+    }
+    else if (df$Alert_L[i] == 3){
+      df$INT[i] <- "50Hz"
+    }
+    else if (df$Alert_L[i] == 4){
+      df$INT[i] <- "60Hz"
+    }
+    else if (df$Alert_L[i] == 5){
+      df$INT[i] <- "70Hz"
+    }
+   }
+  if (df$Alert_C[i] == "IPI"){
+    df$INT[i] <- "50Hz"
+    df$DIP[i] <- "Left_only"
+    if (df$Alert_L[i] == 1){
+      df$IPI[i] <- "0ms"
+    }
+    else if (df$Alert_L[i] == 2){
+      df$IPI[i] <- "30ms"
+    }
+    else if (df$Alert_L[i] == 3){
+      df$IPI[i] <- "60ms"
+    }
+    else if (df$Alert_L[i] == 4){
+      df$IPI[i] <- "90ms"
+    }
+    else if (df$Alert_L[i] == 5){
+      df$IPI[i] <- "120ms"
+    }
+  }
+  if (df$Alert_C[i] == "DIP"){
+    df$INT[i] <- "50Hz"
+    df$IPI[i] <- "0ms"
+    if (df$Alert_L[i] == 1){
+      df$DIP[i] <- "Left_only"
+    }
+    else if (df$Alert_L[i] == 2){
+      df$DIP[i] <- "Front_to_rear"
+    }
+    else if (df$Alert_L[i] == 3){
+      df$DIP[i] <- "Right_to_left"
+    }
+    else if (df$Alert_L[i] == 4){
+      df$DIP[i] <- "Left_to_right"
+    }
+    else if (df$Alert_L[i] == 5){
+      df$DIP[i] <- "Whole_seat"
+    }
+  }
+  if(df$Alert_L[i] == "B"){
+    df$INT[i] <- "Base"
+    df$IPI[i] <- "Base"
+    df$DIP[i] <- "Base"
+  }
+  
+}
+
+
+
