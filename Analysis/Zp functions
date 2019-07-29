@@ -150,17 +150,19 @@ df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character
  }
  
  lineseg <- function(x, t, time_end, speed_P, wheel, acc){
- Posp1y(t, time_end, speed_P, wheel, acc)+x*P1slope(t, time_end, speed_P, wheel, acc)
+ Posp1y(t, time_end, speed_P, wheel, acc)+(x-Posp1x(t, speed_P, wheel, acc))*P1slope(t, time_end, speed_P, wheel, acc)
  }
  
- lineperp <- (point, t, time_end, speed_P, wheel, acc){
- 
- 
+ lineperp <- function(x, t, time_end, speed_P, wheel, acc){
+ Posq1y+(x-Posq1x(t, time_end, speed_Q))/-P1slope(t, time_end, speed_P, wheel, acc)
  }
  
+ seg_perp <- function(x, t, time_end, speed_P, wheel, acc){
+ lineseg(x, t, time_end, speed_P, wheel, acc) -lineperp(x, t, time_end, speed_P, wheel, acc)
+ ]
  
 distfunc <- function(t, time_end, speed_Q, speed_P, wheel, acc){
- 
+ uniroot(seg-perp, 
  }
  
  
