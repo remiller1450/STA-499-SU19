@@ -1,0 +1,300 @@
+#install.packages("R.matlab")
+library(R.matlab) # Reads matlab files
+library(stringr) # String manipulation
+library(readr) # Gets numbers outof complex strings
+library(changepoint)
+library(plotly)
+library(dplyr)
+
+# NOTE: should have the folder "MatFiles" downloaded and extracted to the location below
+# Should have the files "disposition.xls" and "randomization.xlsx" in locations below
+
+## Grab all of the .mat Files from directory
+files <- list.files("~//Desktop//MAP//MatFiles")
+data <- read.csv("~//Desktop//MAP//haptic_data.csv")
+disp <- readxl::read_excel("~//Desktop//MAP//disposition.xls")
+disp$DaqName2 <- str_replace(disp$DaqName, ".daq", ".mat")
+rand <- readxl::read_excel("~//Desktop//MAP//randomization.xlsx")
+rand$`Participant#`<- as.numeric(rand$`Participant#`)
+df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character(), Safety = numeric())
+
+start <- function(acceleration, wheel){
+  acc_rate <- diff(acceleration)*60
+  acc_point <- ifelse(is.na(which(abs(acc_rate) > 3)[1]), 1000, which(abs(acc_rate) > 3)[1])
+  wheel_rate <- diff(wheel)*60
+  wheel_point <- ifelse(is.na(which(abs(wheel_rate) > 0.3)[1]), 1000, which(abs(wheel_rate) > 0.3)[1])
+  if (acc_point < wheel_point){
+    ifelse(acc_rate[acc_point] > 0, return(c(acc_point, wheel_point, 2)), return (c(acc_point, wheel_point, 1)))
+  }
+  else if (acc_point >= wheel_point & wheel_point != 1000){
+    ifelse(wheel_rate[wheel_point] > 0, return(c(wheel_point, acc_point, -2)), return (c(wheel_point, acc_point, -1)))
+  }
+  else{
+    return (c(1000, 1000, 0))
+  }
+}
+
+test <- data %>% group_by(Part_ID) %>% summarize(first = start(acceleration, wheel)[1], second = start(acceleration, wheel)[2], type = start(acceleration, wheel)[3])
+
+val <- function(input, fun, var, time){
+  return ((var[input == fun(input)][1] - var[1])/time[input == fun(input)][1])
+}
+
+calc1 <- function(acceleration, wheel, time, logstream, speed, heading){
+  time_change <- time[match(TRUE, logstream == 2)]
+  speed_Q <- speed[match(TRUE, logstream == 2)]
+  fun <- start(acceleration, wheel)
+  start <- ifelse(fun[1] != 1000, fun[1], time_change)
+  alt <- fun[2]
+  type <- fun[3]
+  time <- time - time_change
+  time_end <- 2.90 - time[start]
+  
+  incdf1 <- data.frame(acceleration = acceleration, wheel = wheel, time = time, logstream = logstream, speed = speed, heading = heading)
+  incdf1 <- incdf1[start:nrow(incdf1),]
+  incdf1 <- na.omit(incdf1)
+  incdf1$time <- incdf1$time - incdf1$time[1]
+  
+  acc <- 0
+  whl <- 0
+  
+  if(type == 1){
+    acc <- val(incdf1$acceleration, min, incdf1$speed, incdf1$time)
+    if(alt - start <= 20){
+      ifelse(diff(incdf1$wheel)[alt-start] < 0,
+             whl <- val(incdf1$wheel, min, incdf1$heading, incdf1$time),
+             whl <- val(incdf1$wheel, max, incdf1$heading, incdf1$time))
+    }
+  }
+  else if(type == 2){
+    acc <- val(incdf1$acceleration, max, incdf1$speed, incdf1$time)
+    if(alt - start <= 20){
+      ifelse(diff(incdf1$wheel)[alt-start] < 0,
+             whl <- val(incdf1$wheel, min, incdf1$heading, incdf1$time),
+             whl <- val(incdf1$wheel, max, incdf1$heading, incdf1$time))
+    }
+  }
+  else if(type == -2){
+    whl <- val(incdf1$wheel, max, incdf1$heading, incdf1$time)
+    if(alt - start <= 20){
+      ifelse(diff(incdf1$acceleration)[alt-start] < 0,
+             acc <- val(incdf1$acceleration, min, incdf1$speed, incdf1$time),
+             acc <- val(incdf1$acceleration, max, incdf1$speed, incdf1$time))
+    }
+  }
+  else if(type == -1){
+    whl <- val(incdf1$wheel, min, incdf1$heading, incdf1$time)
+    if(alt - start <= 20){
+      ifelse(diff(incdf1$acceleration)[alt-start] < 0,
+             acc <- val(incdf1$acceleration, min, incdf1$speed, incdf1$time),
+             acc <- val(incdf1$acceleration, max, incdf1$speed, incdf1$time))
+    }
+  }
+  
+  if(acc < 0){
+    time_stop <- -incdf1$speed[1]/acc 
+  }
+  else{
+    time_stop <- 1000
+  }
+  
+  if(whl == 0){
+    if (time_end <= time_stop){
+      Zp <- (time_end*incdf1$speed[1]- time_end*incdf1$speed[1] - acc/2*time_end^2)/incdf1$speed[1]
+    } else{
+      Zp <- (time_end*incdf1$speed[1]- time_stop*incdf1$speed[1] - acc/2*time_stop^2)/incdf1$speed[1]
+    }
+  }
+  else{
+    Posqy <- 0
+    Posqx <- function(t, time_end, speed_Q){
+      (time_end - t) *speed_Q
+    }
+    Pospy <- function(t, time_end, speed_P, wheel, acc){
+      -time_end*speed_P+(speed_P*sin(wheel*t)/wheel+acc*(wheel*t*sin(wheel*t)+cos(wheel*t))/wheel^2)-acc/wheel^2
+      
+    }
+    
+    Pospx <- function(t, speed_P, wheel, acc){
+      -speed_P/wheel +(speed_P*cos(wheel*t)/wheel+acc*(-sin(wheel*t)+wheel*t*cos(wheel*t))/wheel^2)
+    }
+    
+    qx_px <- function(t, time_end, speed_Q, speed_P,wheel, acc){
+      Posqx(t, time_end, speed_Q)-Pospx(t, speed_P, wheel, acc)
+    }
+    
+    result <- uniroot(qx_px, time_end = time_end, speed_Q = speed_Q, speed_P = incdf1$speed[1], wheel = whl, acc = acc, interval = c(0,10))
+    Zp <- Pospy(result$root,time_end,incdf1$speed[1],whl,acc)/incdf1$speed[1]
+  }
+  return(Zp)
+}
+
+inputs <- function(acceleration, wheel, time, logstream, speed, heading){
+  time_change <- time[match(TRUE, logstream == 2)]
+  speed_Q <- speed[match(TRUE, logstream == 2)]
+  fun <- start(acceleration, wheel)
+  start <- ifelse(fun[1] != 1000, fun[1], time_change)
+  alt <- fun[2]
+  type <- fun[3]
+  time <- time - time_change
+  time_end <- 2.90 - time[start]
+  incdf1 <- data.frame(acceleration = acceleration, wheel = wheel, time = time, logstream = logstream, speed = speed, heading = heading)
+  incdf1 <- incdf1[start:nrow(incdf1),]
+  incdf1 <- na.omit(incdf1)
+  incdf1$time <- incdf1$time - incdf1$time[1]
+  acc <- 0
+  whl <- 0
+  
+  if(type == 1){
+    acc <- val(incdf1$acceleration, min, incdf1$speed, incdf1$time)
+    if(alt - start <= 20){
+      ifelse(diff(incdf1$wheel)[alt-start] < 0,
+             whl <- val(incdf1$wheel, min, incdf1$heading, incdf1$time),
+             whl <- val(incdf1$wheel, max, incdf1$heading, incdf1$time))
+    }
+  } else if(type == 2){
+    acc <- val(incdf1$acceleration, max, incdf1$speed, incdf1$time)
+    if(alt - start <= 20){
+      ifelse(diff(incdf1$wheel)[alt-start] < 0,
+             whl <- val(incdf1$wheel, min, incdf1$heading, incdf1$time),
+             whl <- val(incdf1$wheel, max, incdf1$heading, incdf1$time))
+    }
+  } else if(type == -2){
+    whl <- val(incdf1$wheel, max, incdf1$heading, incdf1$time)
+    if(alt - start <= 20){
+      ifelse(diff(incdf1$acceleration)[alt-start] < 0,
+             acc <- val(incdf1$acceleration, min, incdf1$speed, incdf1$time),
+             acc <- val(incdf1$acceleration, max, incdf1$speed, incdf1$time))
+    }
+  } else if(type == -1){
+    whl <- val(incdf1$wheel, min, incdf1$heading, incdf1$time)
+    if(alt - start <= 20){
+      ifelse(diff(incdf1$acceleration)[alt-start] < 0,
+             acc <- val(incdf1$acceleration, min, incdf1$speed, incdf1$time),
+             acc <- val(incdf1$acceleration, max, incdf1$speed, incdf1$time))
+    }
+  }
+  if(acc < 0){
+    time_stop <- -incdf1$speed[1]/acc 
+  } else{
+    time_stop <- 1000
+  }
+  
+  if(whl == 0){
+    zp <- (incdf1$speed[1]*time_end -incdf1$speed[1]*incdf1$time - acc*incdf1$time*incdf1$time/2)/incdf1$speed[1]
+    zq <- time_end - incdf1$time
+    if (time_stop <= time_end){
+      zp[time_stop:length(zp)] <- (incdf1$speed[1]*time_end -incdf1$speed[1]*time_stop - acc*time_stop*time_stop/2)/incdf1$speed[1]
+    }
+  } else{
+    zp <-((-whl*(incdf1$speed[1]+acc*incdf1$time)*sin(whl*incdf1$time)-acc*cos(whl*incdf1$time) + acc)/whl*whl)/incdf1$speed[1] + time_end
+    zq <-((-whl*(incdf1$speed[1]+acc*incdf1$time)*cos(whl*incdf1$time)+acc*sin(whl*incdf1$time) - incdf1$speed[1]*whl)/whl*whl)/speed_Q + time_end - incdf1$time
+    if (time_stop <= time_end){
+      zp[time_stop:length(zp)] <- -((-whl*(incdf1$speed[1]+acc*time_stop)*sin(whl*time_stop)-acc*cos(whl*time_stop)  + acc)/whl*whl)/incdf1$speed[1] + time_end
+      zq[time_stop:length(zq)] <-((-whl*(incdf1$speed[1]+acc*time_stop)*cos(whl*time_stop)+acc*sin(whl*time_stop)- incdf1$speed[1]*whl)/whl*whl)/speed_Q + time_end - incdf1$time[time_stop:length(zq)]
+    }
+  }
+  x <- data.frame(zp, zq)
+  t1 <- which.min(abs(zp))[1]
+  t2 <- which.min(abs(zq))[1]
+  return(x[t1:t2,])
+}
+
+calc2 <- function(dat){
+  sum <- numeric(length(nrow(dat)-1))
+  div <- numeric(length(nrow(dat)-1))
+  for(i in 1:(nrow(dat)-1)){
+    div[i] = sqrt((dat[i, 1]-dat[i+1, 1])^2+ (dat[i, 2]-dat[i+1, 2])^2)
+    sum[i] = sqrt(dat[i, 1]^2 + dat[i, 2]^2)*sqrt((dat[i, 1]-dat[i+1, 1])^2+ (dat[i, 2]-dat[i+1, 2])^2)
+  }
+  val <- sum(sum)/ sum(div)
+  return(val)
+}
+
+haptic_dat <- data %>% group_by(Part_ID) %>% summarize(Zp = calc1(acceleration, wheel, time, logstream, speed, heading), dist = calc2(inputs(acceleration, wheel, time, logstream, speed, heading)), type = start(acceleration, wheel)[3], collide = max(collision))
+
+for (i in 1:length(files)){
+  pos <- which(disp$DaqName2 == files[i])
+  ID <- parse_number(disp[pos, ]$DaqPath)
+  if (str_sub(disp[pos, ]$DaqPath, -2, -1) == "MN" & ID <= 180){
+    alert_char <- rand[which(rand$`Participant#` == ID),]$Characteristic
+    alert_level <- rand[which(rand$`Participant#` == ID),]$AlertLevel
+    de <- data.frame(Part_ID = ID, Alert_C = alert_char, Alert_L = alert_level)
+    df <- rbind(df, de)
+  }
+}
+
+df <- left_join(x = df, y = haptic_dat, by = "Part_ID")
+
+df$INT <- "NA"
+df$IPI <- "NA"
+df$DIP <- "NA"
+
+for(i in 1:length(df$Part_ID)){
+  if (df$Alert_C[i] == "INT"){
+    df$IPI[i] <- "0ms"
+    df$DIP[i] <- "Left_only"
+    if (df$Alert_L[i] == 1){
+      df$INT[i] <- "30Hz"
+    }
+    else if (df$Alert_L[i] == 2){
+      df$INT[i] <- "40Hz"
+    }
+    else if (df$Alert_L[i] == 3){
+      df$INT[i] <- "50Hz"
+    }
+    else if (df$Alert_L[i] == 4){
+      df$INT[i] <- "60Hz"
+    }
+    else if (df$Alert_L[i] == 5){
+      df$INT[i] <- "70Hz"
+    }
+  }
+  if (df$Alert_C[i] == "IPI"){
+    df$INT[i] <- "50Hz"
+    df$DIP[i] <- "Left_only"
+    if (df$Alert_L[i] == 1){
+      df$IPI[i] <- "0ms"
+    }
+    else if (df$Alert_L[i] == 2){
+      df$IPI[i] <- "30ms"
+    }
+    else if (df$Alert_L[i] == 3){
+      df$IPI[i] <- "60ms"
+    }
+    else if (df$Alert_L[i] == 4){
+      df$IPI[i] <- "90ms"
+    }
+    else if (df$Alert_L[i] == 5){
+      df$IPI[i] <- "120ms"
+    }
+  }
+  if (df$Alert_C[i] == "DIP"){
+    df$INT[i] <- "50Hz"
+    df$IPI[i] <- "0ms"
+    if (df$Alert_L[i] == 1){
+      df$DIP[i] <- "Left_only"
+    }
+    else if (df$Alert_L[i] == 2){
+      df$DIP[i] <- "Front_to_rear"
+    }
+    else if (df$Alert_L[i] == 3){
+      df$DIP[i] <- "Right_to_left"
+    }
+    else if (df$Alert_L[i] == 4){
+      df$DIP[i] <- "Left_to_right"
+    }
+    else if (df$Alert_L[i] == 5){
+      df$DIP[i] <- "Whole_seat"
+    }
+  }
+  if(df$Alert_L[i] == "B"){
+    df$INT[i] <- "Base"
+    df$IPI[i] <- "Base"
+    df$DIP[i] <- "Base"
+  }
+  
+}
+
+model <- lm(data = df, Zp ~ INT + IPI + DIP)
+anova(model)
