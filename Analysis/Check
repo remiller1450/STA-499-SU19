@@ -188,10 +188,10 @@ inputs <- function(acceleration, wheel, time, logstream, speed, heading){
     }
   } else{
     zp <-((-whl*(incdf1$speed[1]+acc*incdf1$time)*sin(whl*incdf1$time)-acc*cos(whl*incdf1$time) + acc)/whl*whl)/incdf1$speed[1] + time_end
-    zq <-((-whl*(incdf1$speed[1]+acc*incdf1$time)*cos(whl*incdf1$time)+acc*sin(whl*incdf1$time) - incdf1$speed[1]*whl)/whl*whl)/speed_Q + time_end - incdf1$time
+    zq <-((-whl*(incdf1$speed[1]+acc*incdf1$time)*cos(whl*incdf1$time)+acc*sin(whl*incdf1$time) + incdf1$speed[1]*whl)/whl*whl)/speed_Q - time_end + incdf1$time
     if (time_stop <= time_end){
       zp[time_stop:length(zp)] <- -((-whl*(incdf1$speed[1]+acc*time_stop)*sin(whl*time_stop)-acc*cos(whl*time_stop)  + acc)/whl*whl)/incdf1$speed[1] + time_end
-      zq[time_stop:length(zq)] <-((-whl*(incdf1$speed[1]+acc*time_stop)*cos(whl*time_stop)+acc*sin(whl*time_stop)- incdf1$speed[1]*whl)/whl*whl)/speed_Q + time_end - incdf1$time[time_stop:length(zq)]
+      zq[time_stop:length(zq)] <-((-whl*(incdf1$speed[1]+acc*time_stop)*cos(whl*time_stop)+acc*sin(whl*time_stop) + incdf1$speed[1]*whl)/whl*whl)/speed_Q - time_end + incdf1$time[time_stop:length(zq)]
     }
   }
   x <- data.frame(zp, zq)
