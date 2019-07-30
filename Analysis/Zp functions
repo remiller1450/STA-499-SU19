@@ -162,8 +162,12 @@ df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character
  ]
  
 distfunc <- function(t, time_end, speed_Q, speed_P, wheel, acc){
- uniroot(seg-perp, 
+ inter <- uniroot(seg-perp, t=t, time_end=time_end, speed_P=speed_P, wheel=wheel, acc=acc)
+ sqrt((inter$root - Posq1x)^2 + (lineseg(inter$root, t, time_end, speed_P, wheel, acc)-Posq1y)^2
  }
+ 
+ Zp <- (Posq1y - lineseg(inter$root, t, time_end, speed_P, wheel, acc))/speed_P
+ Zq <- (Posq1x - inter$root)/speed_Q
  
  
  
