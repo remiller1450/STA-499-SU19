@@ -5,18 +5,21 @@ library(readr) # Gets numbers outof complex strings
 library(changepoint)
 library(plotly)
 library(dplyr)
+library(readxl)
 
 # NOTE: should have the folder "MatFiles" downloaded and extracted to the location below
 # Should have the files "disposition.xls" and "randomization.xlsx" in locations below
 
 ## Grab all of the .mat Files from directory
-files <- list.files("~//Desktop//MAP//MatFiles")
-data <- read.csv("~//Desktop//MAP//haptic_data.csv")
-disp <- readxl::read_excel("~//Desktop//MAP//disposition.xls")
+files <- list.files("H:\\V2VMAT\\MatFiles")
+dat <- read.csv("H:\\V2VMAT\\haptic_data.csv")
+disp <- readxl::read_excel("H:\\V2VMAT\\disposition.xls")
 disp$DaqName2 <- str_replace(disp$DaqName, ".daq", ".mat")
-rand <- readxl::read_excel("~//Desktop//MAP//randomization.xlsx")
+rand <- readxl::read_excel("H:\\V2VMAT\\randomization.xlsx")
 rand$`Participant#`<- as.numeric(rand$`Participant#`)
 df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character(), Safety = numeric())
+
+
 
 start <- function(acceleration, wheel){
   acc_rate <- diff(acceleration)*60
@@ -114,9 +117,9 @@ calc1 <- function(acceleration, wheel, time, logstream, speed, heading){
       -time_end*speed_P+(speed_P*sin(wheel*t)/wheel+acc*(wheel*t*sin(wheel*t)+cos(wheel*t))/wheel^2)-acc/wheel^2
       
     }
-    
+ 
     Pospx <- function(t, speed_P, wheel, acc){
-      -speed_P/wheel +(speed_P*cos(wheel*t)/wheel+acc*(-sin(wheel*t)+wheel*t*cos(wheel*t))/wheel^2)
+      (-wheel*(acc*t + speed_P)*cos(t*wheel)+acc*(sin(t*wheel))+speed_P*wheel)/wheel^2
     }
     
     qx_px <- function(t, time_end, speed_Q, speed_P,wheel, acc){
@@ -179,21 +182,37 @@ inputs <- function(acceleration, wheel, time, logstream, speed, heading){
   } else{
     time_stop <- 1000
   }
+  Posqy <- 0
+  Posqx <- function(t, time_end, speed_Q){
+    (time_end - t) *speed_Q
+  }
+  Pospy <- function(t, time_end, speed_P, wheel, acc){
+    -time_end*speed_P+(speed_P*sin(wheel*t)/wheel+acc*(wheel*t*sin(wheel*t)+cos(wheel*t))/wheel^2)-acc/wheel^2
+    
+  }
+  
+  Pospx <- function(t, speed_P, wheel, acc){
+    (-wheel*(acc*t + speed_P)*cos(t*wheel)+acc*(sin(t*wheel))+speed_P*wheel)/wheel^2
+  }
+  
   
   if(whl == 0){
     zp <- (incdf1$speed[1]*time_end -incdf1$speed[1]*incdf1$time - acc*incdf1$time*incdf1$time/2)/incdf1$speed[1]
     zq <- time_end - incdf1$time
+    
+
     if (time_stop <= time_end){
       zp[time_stop:length(zp)] <- (incdf1$speed[1]*time_end -incdf1$speed[1]*time_stop - acc*time_stop*time_stop/2)/incdf1$speed[1]
     }
   } else{
-    zp <-((-whl*(incdf1$speed[1]+acc*incdf1$time)*sin(whl*incdf1$time)-acc*cos(whl*incdf1$time) + acc)/whl*whl)/incdf1$speed[1] + time_end
-    zq <-((-whl*(incdf1$speed[1]+acc*incdf1$time)*cos(whl*incdf1$time)+acc*sin(whl*incdf1$time) + incdf1$speed[1]*whl)/whl*whl)/speed_Q - time_end + incdf1$time
+    zp <-(Posqy - Pospy(incdf1$time,time_end,incdf1$speed[1],whl,acc))/incdf1$speed[1]
+    zq <-(Pospx(incdf1$time, incdf1$speed[1], whl, acc) - Posqx(incdf1$time, time_end, speed_Q))/speed_Q
     if (time_stop <= time_end){
-      zp[time_stop:length(zp)] <- -((-whl*(incdf1$speed[1]+acc*time_stop)*sin(whl*time_stop)-acc*cos(whl*time_stop)  + acc)/whl*whl)/incdf1$speed[1] + time_end
-      zq[time_stop:length(zq)] <-((-whl*(incdf1$speed[1]+acc*time_stop)*cos(whl*time_stop)+acc*sin(whl*time_stop) + incdf1$speed[1]*whl)/whl*whl)/speed_Q - time_end + incdf1$time[time_stop:length(zq)]
+      zp[time_stop:length(zp)] <- (Posqy - Pospy(time_stop,time_end,incdf1$speed[1],whl,acc))/incdf1$speed[1]
+      zq[time_stop:length(zq)] <- (Pospx(time_stop, incdf1$speed[1], whl, acc) - Posqx(incdf1$time[time_stop:length(zq)], time_end, speed_Q))/speed_Q
     }
   }
+  
   x <- data.frame(zp, zq)
   t1 <- which.min(abs(zp))[1]
   t2 <- which.min(abs(zq))[1]
@@ -201,14 +220,19 @@ inputs <- function(acceleration, wheel, time, logstream, speed, heading){
 }
 
 calc2 <- function(dat){
-  sum <- numeric(length(nrow(dat)-1))
-  div <- numeric(length(nrow(dat)-1))
-  for(i in 1:(nrow(dat)-1)){
-    div[i] = sqrt((dat[i, 1]-dat[i+1, 1])^2+ (dat[i, 2]-dat[i+1, 2])^2)
-    sum[i] = sqrt(dat[i, 1]^2 + dat[i, 2]^2)*sqrt((dat[i, 1]-dat[i+1, 1])^2+ (dat[i, 2]-dat[i+1, 2])^2)
+  if (nrow(dat) == 1){
+    return(sqrt(dat[i, 1]^2 + dat[i, 2]^2))
   }
-  val <- sum(sum)/ sum(div)
-  return(val)
+  else{
+    sum <- numeric(length(nrow(dat)-1))
+    div <- numeric(length(nrow(dat)-1))
+    for(i in 1:(nrow(dat)-1)){
+      div[i] = sqrt((dat[i, 1]-dat[i+1, 1])^2+ (dat[i, 2]-dat[i+1, 2])^2)
+      sum[i] = sqrt(dat[i, 1]^2 + dat[i, 2]^2)*sqrt((dat[i, 1]-dat[i+1, 1])^2+ (dat[i, 2]-dat[i+1, 2])^2)
+    }
+    val <- sum(sum)/ sum(div)
+    return(val)
+  }
 }
 
 haptic_dat <- data %>% group_by(Part_ID) %>% summarize(Zp = calc1(acceleration, wheel, time, logstream, speed, heading), dist = calc2(inputs(acceleration, wheel, time, logstream, speed, heading)), type = start(acceleration, wheel)[3], collide = max(collision))
