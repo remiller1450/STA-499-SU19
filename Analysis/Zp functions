@@ -163,8 +163,18 @@ df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character
  
 distfunc <- function(t, time_end, speed_Q, speed_P, wheel, acc){
  inter <- uniroot(seg-perp, t=t, time_end=time_end, speed_P=speed_P, wheel=wheel, acc=acc)
- sqrt((inter$root - Posq1x)^2 + (lineseg(inter$root, t, time_end, speed_P, wheel, acc)-Posq1y)^2
+ if(inter$root >= Posp1x(t, time_end, speed_P, wheel, acc) & inter$root <= Posp2x(t, time_end, speed_P, wheel, acc)) {
+ return(sqrt((inter$root - Posq1x)^2 + (lineseg(inter$root, t, time_end, speed_P, wheel, acc)-Posq1y)^2)
  }
+ else if(inter$root < Posp1x(t, time_end, speed_P, wheel, acc){
+ return(sqrt((Posp1x(t, time_end, speed_P, wheel, acc) - Posq1x(t, time_end, speed_Q))^2 + (Posp1y(t, time_end, speed_P, wheel, acc)-Posq1y)^2)
+ }
+ else if(inter$root > Posp2x(t, time_end, speed_P, wheel, acc){
+ return(sqrt((Posp2x(t, time_end, speed_P, wheel, acc) - Posq1x(t, time_end, speed_Q))^2 + (Posp2y(t, time_end, speed_P, wheel, acc)-Posq1y)^2)
+ }
+ }
+ 
+ 
  
  Zp <- (Posq1y - lineseg(inter$root, t, time_end, speed_P, wheel, acc))/speed_P
  Zq <- (Posq1x - inter$root)/speed_Q
