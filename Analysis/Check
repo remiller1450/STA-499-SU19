@@ -315,12 +315,13 @@ for(i in 1:length(df$Part_ID)){
     }
   }
   if(df$Alert_L[i] == "B"){
-    df$INT[i] <- "Base"
-    df$IPI[i] <- "Base"
+    df$INT[i] <- "0Base"
+    df$IPI[i] <- "0Base"
     df$DIP[i] <- "Base"
   }
   
 }
-
+df$INT <- parse_number(df$INT)
+df$IPI <- parse_number(df$IPI)
 model <- lm(data = df, Zp ~ INT + IPI + DIP)
 anova(model)
