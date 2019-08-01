@@ -145,52 +145,56 @@ df <- data.frame(Part_ID = numeric(), Alert_C = character(), Alert_L = character
  Posq4y <- -width/2
  
  
- P1slope <- function(t, time_end, speed_P, wheel, acc) {
- (Posp1y(t, time_end, speed_P, wheel, acc)-Posp1y(t, time_end, speed_P, wheel, acc))/(Posp2x(t, speed_P, wheel, acc)-Posp2x(t, speed_P, wheel, acc))
- }
- 
- lineseg <- function(x, t, time_end, speed_P, wheel, acc){
- Posp1y(t, time_end, speed_P, wheel, acc)+(x-Posp1x(t, speed_P, wheel, acc))*P1slope(t, time_end, speed_P, wheel, acc)
- }
- 
- lineperp <- function(x, t, time_end, speed_P, wheel, acc){
- Posq1y+(x-Posq1x(t, time_end, speed_Q))/-P1slope(t, time_end, speed_P, wheel, acc)
- }
- 
- seg_perp <- function(x, t, time_end, speed_P, wheel, acc){
- lineseg(x, t, time_end, speed_P, wheel, acc) -lineperp(x, t, time_end, speed_P, wheel, acc)
- ]
- 
+
+i <- 1
+for ( t in incdf1$time){
+
+slope <- function(point1, point2, t, time_end, speed_P, wheel, acc) {
+  ( 
+    get(paste0(point2),"y")(t, time_end, speed_P, wheel, acc)-get(paste0(point1),"y")(t, time_end, speed_P, wheel, acc))/(get(paste0(point2),"x")(t, speed_P, wheel, acc)-get(paste0(point1),"x")(t, speed_P, wheel, acc))
+}
+
+
+lineseg <- function(x, t, time_end, speed_P, wheel, acc){
+  Posp1y(t, time_end, speed_P, wheel, acc)+(x-Posp1x(t, speed_P, wheel, acc))*p1slope(t, time_end, speed_P, wheel, acc)
+}
+
+lineperp <- function(x, t, time_end, speed_P, wheel, acc){
+  Posq1y+(x-Posq1x(t, time_end, speed_Q))/-p1slope(t, time_end, speed_P, wheel, acc)
+}
+
+seg_perp <- function(x, t, time_end, speed_P, wheel, acc){
+  lineseg(x, t, time_end, speed_P, wheel, acc) -lineperp(x, t, time_end, speed_P, wheel, acc)
+}
+
+dfdist <- data.frame(dist,Zp,Zq)
+
 distfunc <- function(t, time_end, speed_Q, speed_P, wheel, acc){
- inter <- uniroot(seg-perp, t=t, time_end=time_end, speed_P=speed_P, wheel=wheel, acc=acc)
- if(inter$root >= Posp1x(t, time_end, speed_P, wheel, acc) & inter$root <= Posp2x(t, time_end, speed_P, wheel, acc)) {
- return(sqrt((inter$root - Posq1x)^2 + (lineseg(inter$root, t, time_end, speed_P, wheel, acc)-Posq1y)^2)
- }
- else if(inter$root < Posp1x(t, time_end, speed_P, wheel, acc){
- return(sqrt((Posp1x(t, time_end, speed_P, wheel, acc) - Posq1x(t, time_end, speed_Q))^2 + (Posp1y(t, time_end, speed_P, wheel, acc)-Posq1y)^2)
- }
- else if(inter$root > Posp2x(t, time_end, speed_P, wheel, acc){
- return(sqrt((Posp2x(t, time_end, speed_P, wheel, acc) - Posq1x(t, time_end, speed_Q))^2 + (Posp2y(t, time_end, speed_P, wheel, acc)-Posq1y)^2)
- }
- }
- 
- 
- 
- Zp <- (Posq1y - lineseg(inter$root, t, time_end, speed_P, wheel, acc))/speed_P
- Zq <- (Posq1x - inter$root)/speed_Q
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+  inter <- uniroot(seg-perp, t=t, time_end=time_end, speed_P=speed_P, wheel=wheel, acc=acc)
+  if(inter$root >= Posp1x(t, time_end, speed_P, wheel, acc) & inter$root <= Posp2x(t, time_end, speed_P, wheel, acc)) {
+    dfdist$dist[i] <- sqrt((inter$root - Posq1x)^2 + (lineseg(inter$root, t, time_end, speed_P, wheel, acc)-Posq1y)^2)
+    dfdist$Zp[i] <- (Posq1y - lineseg(inter$root, t, time_end, speed_P, wheel, acc))/speed_P
+    dfdist$Zq[i] <- (Posq1x(t, time_end, speed_Q) - inter$root)/speed_Q
+  }
+  else if(inter$root < Posp1x(t, time_end, speed_P, wheel, acc)){
+    dfdist$dist[i] <- sqrt((Posp1x(t, time_end, speed_P, wheel, acc) - Posq1x(t, time_end, speed_Q))^2 + (Posp1y(t, time_end, speed_P, wheel, acc)-Posq1y)^2)
+    dfdist$Zp[i] <- (Posq1y - Posp1y(t, time_end, speed_P, wheel, acc))/speed_P
+    dfdist$Zq[i] <- (Posq1x(t, time_end, speed_Q) - Posp1x(t, time_end, speed_P, wheel, acc))/speed_Q
+    }
+  else if(inter$root > Posp2x(t, time_end, speed_P, wheel, acc)){
+    dfdist$dist[i] <- sqrt((Posp2x(t, time_end, speed_P, wheel, acc) - Posq1x(t, time_end, speed_Q))^2 + (Posp2y(t, time_end, speed_P, wheel, acc)-Posq1y)^2)
+    dfdist$Zp[i] <- (Posq1y - Posp2y(t, time_end, speed_P, wheel, acc))/speed_P
+    dfdist$Zq[i] <- (Posq1x(t, time_end, speed_Q) - Posp2x(t, time_end, speed_P, wheel, acc))/speed_Q
+  }
+}
+
+distfunc(t, time_end, speed_Q, incdf1$speed[1], wheel, acc)
+
+i <- i + 1
+}
+
+
+
+p12q1 <- min(dfdist$dist)
+
 
