@@ -330,6 +330,10 @@ library(ggplot2)
 library(gridExtra)
 
 p1 <- ggplot(df, aes(y = dist, x = factor(collide))) + geom_boxplot() + labs(y = "Expected Distance")
-p2 <- ggplot(df, aes(y = dist, x = Zp)) + geom_point()
+fit <- glm(data = haptic_dat, collide ~ dist, family = "binomial")
+dfcomp <- df[complete.cases(df),]
+dfcomp$fitted <- fit$fitted.values
+plot(dfcomp$collide, dfcomp$fitted)
+p2 <- ggplot(dfcomp, aes(d = collide, m = -dist)) + geom_roc()
 
 grid.arrange(p1, p2, nrow = 1)
