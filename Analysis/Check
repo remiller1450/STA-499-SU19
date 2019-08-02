@@ -1,4 +1,3 @@
-#install.packages("R.matlab")
 library(R.matlab) # Reads matlab files
 library(stringr) # String manipulation
 library(readr) # Gets numbers outof complex strings
@@ -119,7 +118,7 @@ calc1 <- function(acceleration, wheel, time, logstream, speed, heading){
       -time_end*speed_P+(speed_P*sin(wheel*t)/wheel+acc*(wheel*t*sin(wheel*t)+cos(wheel*t))/wheel^2)-acc/wheel^2
       
     }
- 
+    
     Pospx <- function(t, speed_P, wheel, acc){
       (-wheel*(acc*t + speed_P)*cos(t*wheel)+acc*(sin(t*wheel))+speed_P*wheel)/wheel^2
     }
@@ -202,22 +201,21 @@ inputs <- function(acceleration, wheel, time, logstream, speed, heading){
     zp <- (incdf1$speed[1]*time_end -incdf1$speed[1]*incdf1$time - acc*incdf1$time*incdf1$time/2)/incdf1$speed[1]
     zq <- time_end - incdf1$time
     
-
+    
     if (time_stop <= time_end){
-      zp[time_stop:length(zp)] <- (incdf1$speed[1]*time_end -incdf1$speed[1]*time_stop - acc*time_stop*time_stop/2)/incdf1$speed[1]
+      zp[which.min(abs(incdf1$time-time_stop))[1]:length(zp)] <- (incdf1$speed[1]*time_end -incdf1$speed[1]*time_stop - acc*time_stop*time_stop/2)/incdf1$speed[1]
     }
   } else{
     zp <-(Posqy - Pospy(incdf1$time,time_end,incdf1$speed[1],whl,acc))/incdf1$speed[1]
     zq <-(Pospx(incdf1$time, incdf1$speed[1], whl, acc) - Posqx(incdf1$time, time_end, speed_Q))/speed_Q
-    if (time_stop <= time_end){
-      zp[time_stop:length(zp)] <- (Posqy - Pospy(time_stop,time_end,incdf1$speed[1],whl,acc))/incdf1$speed[1]
-      zq[time_stop:length(zq)] <- (Pospx(time_stop, incdf1$speed[1], whl, acc) - Posqx(incdf1$time[time_stop:length(zq)], time_end, speed_Q))/speed_Q
+    if (which.min(abs(incdf1$time-time_stop))[1] <= length(zp)){
+      zp[which.min(abs(incdf1$time-time_stop))[1]:length(zp)] <- (Posqy - Pospy(time_stop,time_end,incdf1$speed[1],whl,acc))/incdf1$speed[1]
+      zq[which.min(abs(incdf1$time-time_stop))[1]:length(zq)] <- (Pospx(time_stop, incdf1$speed[1], whl, acc) - Posqx(incdf1$time[which.min(abs(incdf1$time-time_stop))[1]:length(zq)], time_end, speed_Q))/speed_Q
     }
   }
-  
   x <- data.frame(zp, zq)
-  t1 <- which.min(abs(zp))[1]
-  t2 <- which.min(abs(zq))[1]
+  t1 <- which.min(abs(floor(zp*100)))[1]
+  t2 <- which.min(abs(floor(zq*100)))[1]
   return(x[t1:t2,])
 }
 
@@ -325,3 +323,13 @@ df$INT <- parse_number(df$INT)
 df$IPI <- parse_number(df$IPI)
 model <- lm(data = df, Zp ~ INT + IPI + DIP)
 anova(model)
+
+
+library(ggplot2)
+#install.packages("gridExtra")
+library(gridExtra)
+
+p1 <- ggplot(df, aes(y = dist, x = factor(collide))) + geom_boxplot() + labs(y = "Expected Distance")
+p2 <- ggplot(df, aes(y = dist, x = Zp)) + geom_point()
+
+grid.arrange(p1, p2, nrow = 1)
