@@ -1,7 +1,6 @@
 library(R.matlab) # Reads matlab files
 library(stringr) # String manipulation
 library(readr) # Gets numbers outof complex strings
-library(changepoint)
 library(plotly)
 library(dplyr)
 library(readxl)
@@ -12,8 +11,12 @@ library(readxl)
 ## Grab all of the .mat Files from directory
 files <- list.files("H:\\V2VMAT\\MatFiles")
 data <- read.csv("H:\\V2VMAT\\haptic_data.csv")
-data <- filter(data, Part_ID != 15 || Part_ID != 16 || Part_ID != 17 || Part_ID != 20 || Part_ID != 28 || 
-                 Part_ID != 31 || Part_ID != 66 || Part_ID != 77 || Part_ID != 83 || Part_ID != 90 || Part_ID != 110)
+for (i in c(15,16,17,20,28,31,66,77,83,90,110)){
+  data <- subset(data,Part_ID != i)
+  
+}
+  
+  
 disp <- readxl::read_excel("H:\\V2VMAT\\disposition.xls")
 disp$DaqName2 <- str_replace(disp$DaqName, ".daq", ".mat")
 rand <- readxl::read_excel("H:\\V2VMAT\\randomization.xlsx")
@@ -221,7 +224,7 @@ inputs <- function(acceleration, wheel, time, logstream, speed, heading){
 
 calc2 <- function(dat){
   if (nrow(dat) == 1){
-    return(sqrt(dat[i, 1]^2 + dat[i, 2]^2))
+    return(sqrt(dat[1, 1]^2 + dat[1, 2]^2))
   }
   else{
     sum <- numeric(length(nrow(dat)-1))
@@ -321,12 +324,23 @@ for(i in 1:length(df$Part_ID)){
 }
 df$INT <- parse_number(df$INT)
 df$IPI <- parse_number(df$IPI)
+df$Base <- "Alert"
+for (i in 1:length(df$Part_ID)){
+  if (df$DIP[i] == "Base"){
+    df$Base[i] <- "Base"
+  }
+}
+
+for (i in c(15,16,17,20,28,31,66,77,83,90,110)){
+  df <- subset(df,Part_ID != i)
+  
+}
 model <- lm(data = df, Zp ~ INT + IPI + DIP)
 anova(model)
 
 
 library(ggplot2)
-#install.packages("gridExtra")
+install.packages("gridExtra")
 library(gridExtra)
 
 p1 <- ggplot(df, aes(y = dist, x = factor(collide))) + geom_boxplot() + labs(y = "Expected Distance", x = "No collision vs collision") + theme_bw()
