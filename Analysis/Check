@@ -355,10 +355,13 @@ p1 <- ggplot(df, aes(y = dist, x = factor(collide))) + geom_boxplot() + labs(y =
 df1 <- subset(df, DIP != "Base")
 df2 <- subset(df, DIP == "Base")
 
-
+n <- 92
 rr <- roc(data = df, response = collide, predictor = dist)
 p2 <- ggroc(rr) + geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), linetype = "dashed") + labs(y = "Sensitivity", x = "Specificity") + theme_classic()
+p2 <- p2 + geom_point( aes(x = rr$specificities[n], y = rr$sensitivities[n])) +
+  geom_text(label = paste("(", round(rr$specificities[n],2),  round(rr$sensitivities[n],2), ")"), aes(x = rr$specificities[n]-0.005, y = rr$sensitivities[n] + .045))
+rr$thresholds[92]
+
 
 grid.arrange(p1, p2, nrow = 1)
-
 
