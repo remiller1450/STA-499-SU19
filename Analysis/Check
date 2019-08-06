@@ -4,6 +4,9 @@ library(readr) # Gets numbers outof complex strings
 library(plotly)
 library(dplyr)
 library(readxl)
+library(pROC)
+library(ggplot2)
+library(gridExtra)
 
 # NOTE: should have the folder "MatFiles" downloaded and extracted to the location below
 # Should have the files "disposition.xls" and "randomization.xlsx" in locations below
@@ -15,8 +18,8 @@ for (i in c(15,16,17,20,28,31,66,77,83,90,110)){
   data <- subset(data,Part_ID != i)
   
 }
-  
-  
+
+
 disp <- readxl::read_excel("H:\\V2VMAT\\disposition.xls")
 disp$DaqName2 <- str_replace(disp$DaqName, ".daq", ".mat")
 rand <- readxl::read_excel("H:\\V2VMAT\\randomization.xlsx")
@@ -330,6 +333,14 @@ for (i in 1:length(df$Part_ID)){
     df$Base[i] <- "Base"
   }
 }
+for (i in 1:length(df$Part_ID)){
+  if (df$collide[i] == 0){
+    df$collide[i] <- "No Collision"
+  }
+  else if (df$collide[i] == 1){
+    df$collide[i] <- "Collision"
+  }
+}
 
 for (i in c(15,16,17,20,28,31,66,77,83,90,110)){
   df <- subset(df,Part_ID != i)
@@ -339,20 +350,15 @@ model <- lm(data = df, Zp ~ INT + IPI + DIP)
 anova(model)
 
 
-library(ggplot2)
-install.packages("gridExtra")
-library(gridExtra)
 
-p1 <- ggplot(df, aes(y = dist, x = factor(collide))) + geom_boxplot() + labs(y = "Expected Distance", x = "No collision vs collision") + theme_bw()
+p1 <- ggplot(df, aes(y = dist, x = factor(collide))) + geom_boxplot() + labs(y = "Expected Distance", x = "") + theme_classic()
 df1 <- subset(df, DIP != "Base")
 df2 <- subset(df, DIP == "Base")
-library(ggplot2)
-#install.packages("gridExtra")
-library(gridExtra)
 
-p1 <- ggplot(df, aes(y = dist, x = factor(collide))) + geom_boxplot() + labs(y = "Expected Distance", x = "No collision vs collision") + theme_bw()
 
-rr <- roc(data = df, collide ~ dist)
-p2 <- ggroc(rr) + geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), linetype = "dashed")
+rr <- roc(data = df, response = collide, predictor = dist)
+p2 <- ggroc(rr) + geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), linetype = "dashed") + theme_classic()
 
 grid.arrange(p1, p2, nrow = 1)
+
+
