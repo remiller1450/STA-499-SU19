@@ -344,10 +344,15 @@ install.packages("gridExtra")
 library(gridExtra)
 
 p1 <- ggplot(df, aes(y = dist, x = factor(collide))) + geom_boxplot() + labs(y = "Expected Distance", x = "No collision vs collision") + theme_bw()
-fit <- glm(data = haptic_dat, collide ~ dist, family = "binomial")
-dfcomp <- df[complete.cases(df),]
-dfcomp$fitted <- fit$fitted.values
-plot(dfcomp$collide, dfcomp$fitted)
-p2 <- ggplot(dfcomp, aes(d = -collide, m = dist)) + geom_roc() + theme_bw()
+df1 <- subset(df, DIP != "Base")
+df2 <- subset(df, DIP == "Base")
+library(ggplot2)
+#install.packages("gridExtra")
+library(gridExtra)
+
+p1 <- ggplot(df, aes(y = dist, x = factor(collide))) + geom_boxplot() + labs(y = "Expected Distance", x = "No collision vs collision") + theme_bw()
+
+rr <- roc(data = df, collide ~ dist)
+p2 <- ggroc(rr) + geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), linetype = "dashed")
 
 grid.arrange(p1, p2, nrow = 1)
