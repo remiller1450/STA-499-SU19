@@ -357,7 +357,7 @@ df2 <- subset(df, DIP == "Base")
 
 
 rr <- roc(data = df, response = collide, predictor = dist)
-p2 <- ggroc(rr) + geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), linetype = "dashed") + theme_classic()
+p2 <- ggroc(rr) + geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), linetype = "dashed") + labs(y = "Sensitivity", x = "Specificity") + theme_classic()
 
 grid.arrange(p1, p2, nrow = 1)
 
