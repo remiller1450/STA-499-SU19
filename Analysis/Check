@@ -346,14 +346,8 @@ for (i in c(15,16,17,20,28,31,66,77,83,90,110)){
   df <- subset(df,Part_ID != i)
   
 }
-model <- lm(data = df, Zp ~ INT + IPI + DIP)
-anova(model)
-
-
 
 p1 <- ggplot(df, aes(y = dist, x = factor(collide))) + geom_boxplot() + labs(y = "Expected Distance", x = "") + theme_classic()
-df1 <- subset(df, DIP != "Base")
-df2 <- subset(df, DIP == "Base")
 
 n <- 92
 rr <- roc(data = df, response = collide, predictor = dist)
@@ -361,7 +355,20 @@ p2 <- ggroc(rr) + geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), linetype =
 p2 <- p2 + geom_point( aes(x = rr$specificities[n], y = rr$sensitivities[n])) +
   geom_text(label = paste("(", round(rr$specificities[n],2),  round(rr$sensitivities[n],2), ")"), aes(x = rr$specificities[n]-0.005, y = rr$sensitivities[n] + .045))
 rr$thresholds[92]
-
-
 grid.arrange(p1, p2, nrow = 1)
 
+df1 <- filter(df, Alert_C == "INT" | Alert_L == "B")
+p3 <- ggplot(df1, aes(x = factor(df1$INT), y = dist)) + 
+  geom_boxplot() +
+  stat_summary(fun.y = mean, geom = "point", color = "red", pch = 2)+ theme_classic()+ labs(y = "Expected Distance", x = "Intensity")
+p4 <- ggplot(df1, aes(x = factor(df1$INT), y = collide)) +
+  geom_jitter(width = 0.05, height = 0)+
+  scale_y_reverse() +
+  stat_summary(fun.y = mean, geom = "point", color = "red", pch = 2)+ theme_classic()+ labs(y = "Collision", x = "Intensity")
+grid.arrange(p3, p4, nrow = 1)
+
+df2 <- filter(df,Alert_L != "B")
+a <- glm(data = df2, dist~INT+IPI+DIP)
+b <- glm(data = df2, collide~INT+IPI+DIP)
+xtable(anova(b, test = "LRT"), caption = "Collision as Response")
+xtable(anova(a, test = "LRT"), caption="Expected Distance as Response")
