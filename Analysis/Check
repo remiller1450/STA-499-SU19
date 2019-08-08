@@ -335,7 +335,7 @@ for (i in 1:length(df$Part_ID)){
 }
 for (i in 1:length(df$Part_ID)){
   if (df$collide[i] == 0){
-    df$collide[i] <- "No Collision"
+    df$collide[i] <- "Non-Collision"
   }
   else if (df$collide[i] == 1){
     df$collide[i] <- "Collision"
@@ -347,25 +347,37 @@ for (i in c(15,16,17,20,28,31,66,77,83,90,110)){
   
 }
 
-p1 <- ggplot(df, aes(y = dist, x = factor(collide))) + geom_boxplot() + labs(y = "Expected Distance", x = "") + theme_classic()
+p1 <- ggplot(df, aes(y = dist, x = factor(collide))) + geom_boxplot() + labs(y = expression(hat(D)), x = "") + theme_classic()
 
 n <- 92
 rr <- roc(data = df, response = collide, predictor = dist)
 p2 <- ggroc(rr) + geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), linetype = "dashed") + labs(y = "Sensitivity", x = "Specificity") + theme_classic()
-p2 <- p2 + geom_point( aes(x = rr$specificities[n], y = rr$sensitivities[n])) +
-  geom_text(label = paste("(", round(rr$specificities[n],2),  round(rr$sensitivities[n],2), ")"), aes(x = rr$specificities[n]-0.005, y = rr$sensitivities[n] + .045))
+p2 <- p2 + geom_point(aes(x = rr$specificities[n], y = rr$sensitivities[n])) +
+  geom_text(label = paste("(", round(rr$specificities[n],2),  round(rr$sensitivities[n],2), ")"), aes(x = rr$specificities[n]-0.025, y = rr$sensitivities[n] + .045))
 rr$thresholds[92]
+png("fig2.png",width = 2480, height = 1480, units = "px", res = 300)
 grid.arrange(p1, p2, nrow = 1)
+dev.off()
 
 df1 <- filter(df, Alert_C == "INT" | Alert_L == "B")
 p3 <- ggplot(df1, aes(x = factor(df1$INT), y = dist)) + 
   geom_boxplot() +
-  stat_summary(fun.y = mean, geom = "point", color = "red", pch = 2)+ theme_classic()+ labs(y = "Expected Distance", x = "Intensity")
-p4 <- ggplot(df1, aes(x = factor(df1$INT), y = collide)) +
-  geom_jitter(width = 0.05, height = 0)+
+  stat_summary(fun.y = mean, geom = "point", color = "red", pch = 2)+ theme_classic()+ labs(y = expression(hat(D)), x = "Intensity")
+# for (i in 1:length(df1$Part_ID)){
+#   if (df1$collide[i] == "Non-Collision"){
+#     df1$collide[i] <- 0
+#   }
+#   else if (df1$collide[i] == "Collision"){
+#     df1$collide[i] <- 1
+#   }
+# }
+p4 <- ggplot(df1, aes(x = factor(df1$INT), y = as.numeric(collide))) +
+  geom_jitter(width = 0.05, height = 0) + 
   scale_y_reverse() +
   stat_summary(fun.y = mean, geom = "point", color = "red", pch = 2)+ theme_classic()+ labs(y = "Collision", x = "Intensity")
+png("fig3.png",width = 2480, height = 1480, units = "px", res = 300)
 grid.arrange(p3, p4, nrow = 1)
+dev.off()
 
 df2 <- filter(df,Alert_L != "B")
 a <- glm(data = df2, dist~INT+IPI+DIP)
@@ -375,7 +387,12 @@ xtable(anova(a, test = "LRT"), caption="Expected Distance as Response")
 
 
 d <- data[data$Part_ID == 65,]
+d$time <- d$time - d$time[1]-1.06
+
+png("fig1.png",width = 2480, height = 1480, units = "px", res = 300)
 ggplot()+geom_point(data=d, aes(x = time, y = acceleration), colour=alpha('red', 0.5))+geom_point(data=d, aes(x = time, y= wheel*10),colour=alpha('blue', 0.5))+scale_y_continuous(sec.axis = sec_axis(~.*0.1, name = "Wheel Angle"))+
-  geom_vline(xintercept = d$time[1])+geom_vline(xintercept = d$time[1]+3.96)+geom_point(aes(x =d$time[start(d$acceleration,d$wheel)[1]],y=d$wheel[start(d$acceleration,d$wheel)[1]]*10),shape=23,fill="blue",size=3)+geom_point(aes(x =d$time[start(d$acceleration,d$wheel)[2]],y=d$acceleration[start(d$acceleration,d$wheel)[2]]),shape=23,fill="red",size=3)+
+  geom_vline(xintercept = d$time[1],lty = 2)+geom_vline(xintercept = d$time[1]+3.96)+geom_point(aes(x =d$time[start(d$acceleration,d$wheel)[1]],y=d$wheel[start(d$acceleration,d$wheel)[1]]*10),shape=23,fill="blue",size=3)+geom_point(aes(x =d$time[start(d$acceleration,d$wheel)[2]],y=d$acceleration[start(d$acceleration,d$wheel)[2]]),shape=23,fill="red",size=3)+
   geom_text(label = paste("Alert\nRing"),aes(x = d$time[1]+0.17, y = 2))+geom_text(label = paste("First Reaction \n of Wheel Angle"),aes(x = d$time[start(d$acceleration,d$wheel)[1]]-0.45, y = 0.6))+
   geom_text(label = paste("First Reaction \n of Acceleration"),aes(x = d$time[start(d$acceleration,d$wheel)[1]]+0.5, y = -0.3))+geom_text(label = paste("Predicted\nCollision"),aes(x = d$time[1]+4.3, y = 2.5))+labs(x="Time",y="Acceleration")+theme_classic()
+dev.off()
+
