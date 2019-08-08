@@ -376,7 +376,6 @@ xtable(anova(a, test = "LRT"), caption="Expected Distance as Response")
 
 d <- data[data$Part_ID == 65,]
 ggplot()+geom_point(data=d, aes(x = time, y = acceleration), colour=alpha('red', 0.5))+geom_point(data=d, aes(x = time, y= wheel*10),colour=alpha('blue', 0.5))+scale_y_continuous(sec.axis = sec_axis(~.*0.1, name = "Wheel Angle"))+
-  geom_vline(xintercept = d$time[1])+geom_vline(xintercept = d$time[1]+2.9)+geom_point(aes(x =d$time[start(d$acceleration,d$wheel)[1]],y=d$wheel[start(d$acceleration,d$wheel)[1]]*10),shape=23,fill="blue",size=3)+geom_point(aes(x =d$time[start(d$acceleration,d$wheel)[2]],y=d$acceleration[start(d$acceleration,d$wheel)[2]]),shape=23,fill="red",size=3)+
+  geom_vline(xintercept = d$time[1])+geom_vline(xintercept = d$time[1]+3.96)+geom_point(aes(x =d$time[start(d$acceleration,d$wheel)[1]],y=d$wheel[start(d$acceleration,d$wheel)[1]]*10),shape=23,fill="blue",size=3)+geom_point(aes(x =d$time[start(d$acceleration,d$wheel)[2]],y=d$acceleration[start(d$acceleration,d$wheel)[2]]),shape=23,fill="red",size=3)+
   geom_text(label = paste("Alert\nRing"),aes(x = d$time[1]+0.17, y = 2))+geom_text(label = paste("First Reaction \n of Wheel Angle"),aes(x = d$time[start(d$acceleration,d$wheel)[1]]-0.45, y = 0.6))+
-  geom_text(label = paste("First Reaction \n of Acceleration"),aes(x = d$time[start(d$acceleration,d$wheel)[1]]+0.5, y = -0.3))+geom_text(label = paste("Predicted\nCollision"),aes(x = d$time[1]+2.57, y = 2.5))+labs(x="Time",y="Acceleration")+theme_classic()
-
+  geom_text(label = paste("First Reaction \n of Acceleration"),aes(x = d$time[start(d$acceleration,d$wheel)[1]]+0.5, y = -0.3))+geom_text(label = paste("Predicted\nCollision"),aes(x = d$time[1]+4.3, y = 2.5))+labs(x="Time",y="Acceleration")+theme_classic()
