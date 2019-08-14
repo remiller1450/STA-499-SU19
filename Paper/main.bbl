@@ -1,0 +1,40 @@
+\begin{thebibliography}{6}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem[{Beltz(2018)}]{Beltz2018}
+\textsc{Beltz, B.} (2018).
+\newblock 100+ car accident statistics for 2019.
+
+\bibitem[{Brown(2005)}]{Brown2005}
+\textsc{Brown, L.~T.} (2005).
+\newblock Adjusted minimum time-to-collision(ttc): A robust approach to
+  evaluating crash scenarios 40--48.
+
+\bibitem[{Hayward(1972)}]{Hayward1972}
+\textsc{Hayward, J.~C.} (1972).
+\newblock Near-miss determination through use of a scale of danger.
+\newblock \textit{Highway Research Record} 24--34.
+
+\bibitem[{Hou et~al.(2014)Hou, List and Guo}]{Hou2014}
+\textsc{Hou, J.}, \textsc{List, F.~G.} and \textsc{Guo, X.} (2014).
+\newblock New algorithms for computing the time-to-collision in freeway traffic
+  simulation models.
+\newblock \textit{Hindawi}, \textbf{2014}.
+
+\bibitem[{Schwarz(2014)}]{Schwarz2014}
+\textsc{Schwarz, C.} (2014).
+\newblock On computing time-to-collision for automation scenarios.
+\newblock \textit{Transportation Research Part F: Traffic Psychology and
+  Behaviour}, \textbf{27} 283--294.
+
+\bibitem[{Sobhani et~al.(2012)Sobhani, Young and Bahrololoom}]{Sobhani2012}
+\textsc{Sobhani, A.}, \textsc{Young, W.} and \textsc{Bahrololoom, M., Sareh
+  amd~Sarvo} (2012).
+\newblock Calculating time-to-collision for analysing right turning behaviour
+  at signalised intersections.
+
+\end{thebibliography}

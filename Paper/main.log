@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6745 64-bit) (preloaded format=pdflatex 2018.8.23)  14 AUG 2019 12:08
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6745 64-bit) (preloaded format=pdflatex 2018.8.23)  14 AUG 2019 13:26
 entering extended mode
 **./main.tex
 (main.tex
@@ -606,31 +606,7 @@ LaTeX Font Info:    Try loading font information for U+msb on input line 20.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
-
-Package natbib Warning: Citation `Beltz2018' on page 1 undefined on input line 
-23.
-
-
-Package natbib Warning: Citation `Hayward' on page 1 undefined on input line 25
-.
-
-
-Package natbib Warning: Citation `Huo' on page 1 undefined on input line 25.
-
-
-Package natbib Warning: Citation `Sobhani' on page 1 undefined on input line 25
-.
-
-
-Package natbib Warning: Citation `Schwarz' on page 1 undefined on input line 27
-.
-
-
-Package natbib Warning: Citation `Schwarz' on page 1 undefined on input line 33
-.
-
-[1
+) [1
 
 {C:/Users/millerry/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
 
@@ -700,13 +676,13 @@ Underfull \hbox (badness 10000) in paragraph at lines 265--271
 <fig1.png, id=39, 597.432pt x 356.532pt>
 File: fig1.png Graphic file (type png)
 <use fig1.png>
-Package pdftex.def Info: fig1.png  used on input line 277.
-(pdftex.def)             Requested size: 469.75502pt x 280.34608pt.
+Package pdftex.def Info: fig1.png  used on input line 278.
+(pdftex.def)             Requested size: 422.77664pt x 252.30711pt.
 <fig2.png, id=40, 597.432pt x 356.532pt>
 File: fig2.png Graphic file (type png)
 <use fig2.png>
-Package pdftex.def Info: fig2.png  used on input line 293.
-(pdftex.def)             Requested size: 469.75502pt x 280.34608pt.
+Package pdftex.def Info: fig2.png  used on input line 296.
+(pdftex.def)             Requested size: 375.80544pt x 224.27904pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
@@ -715,50 +691,50 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 <fig3.png, id=46, 597.432pt x 356.532pt>
 File: fig3.png Graphic file (type png)
 <use fig3.png>
-Package pdftex.def Info: fig3.png  used on input line 305.
-(pdftex.def)             Requested size: 469.75502pt x 280.34608pt.
+Package pdftex.def Info: fig3.png  used on input line 310.
+(pdftex.def)             Requested size: 375.80544pt x 224.27904pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[8 <./fig2.png>]
-<discussion_1.png, id=51, 1468.48625pt x 460.72125pt>
+[8 <./fig2.png>] [9 <./fig3.png>]
+<discussion_1.png, id=55, 1468.48625pt x 460.72125pt>
 File: discussion_1.png Graphic file (type png)
 <use discussion_1.png>
-Package pdftex.def Info: discussion_1.png  used on input line 343.
+Package pdftex.def Info: discussion_1.png  used on input line 355.
 (pdftex.def)             Requested size: 341.41953pt x 85.35161pt.
- [9 <./fig3.png>] [10 <./discussion_1.png>]
-No file main.bbl.
+ [10 <./discussion_1.png>] (main.bbl)
 
 Package natbib Warning: There were undefined citations.
 
 [11] (main.aux) ) 
 Here is how much of TeX's memory you used:
- 13367 strings out of 492973
- 263093 string characters out of 3135923
- 316442 words of memory out of 3000000
- 16970 multiletter control sequences out of 15000+200000
- 11849 words of font info for 46 fonts, out of 3000000 for 9000
+ 13394 strings out of 492973
+ 263533 string characters out of 3135923
+ 315651 words of memory out of 3000000
+ 16994 multiletter control sequences out of 15000+200000
+ 12150 words of font info for 47 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 55i,16n,54p,1346b,600s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 55i,16n,54p,1360b,600s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cm
 bx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb
-><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Pro
-gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Fil
-es/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi5.pfb><C:/Program Files/MiKTeX
- 2.9/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Program Files/MiKTeX 2.9/font
-s/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/p
-ublic/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/ams
-fonts/cm/cmr17.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/
-cmr5.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><
-C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Progr
-am Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/Program Files/
-MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.
-9/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/
-type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on main.pdf (11 pages, 560647 bytes).
+><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Pr
+ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Fi
+les/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKT
+eX 2.9/fonts/type1/public/amsfonts/cm/cmmi5.pfb><C:/Program Files/MiKTeX 2.9/fo
+nts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1
+/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/a
+msfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/c
+m/cmr17.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr5.pf
+b><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Prog
+ram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program File
+s/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/Program Files/MiKTeX 
+2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.9/fonts
+/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/p
+ublic/amsfonts/symbols/msbm10.pfb>
+Output written on main.pdf (11 pages, 582910 bytes).
 PDF statistics:
- 114 PDF objects out of 1000 (max. 8388607)
+ 118 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  33 words of extra memory for PDF output out of 10000 (max. 10000000)
 
