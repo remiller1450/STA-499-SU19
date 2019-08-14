@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6745 64-bit) (preloaded format=pdflatex 2018.8.23)  13 AUG 2019 16:11
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6745 64-bit) (preloaded format=pdflatex 2018.8.23)  14 AUG 2019 12:08
 entering extended mode
 **./main.tex
 (main.tex
@@ -647,96 +647,100 @@ Underfull \hbox (badness 10000) in paragraph at lines 131--133
 
  []
 
-[3]
-Underfull \hbox (badness 10000) in paragraph at lines 206--224
+[3] [4]
+Underfull \hbox (badness 10000) in paragraph at lines 209--210
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 206--224
+Underfull \hbox (badness 10000) in paragraph at lines 219--220
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 206--224
+Underfull \hbox (badness 10000) in paragraph at lines 226--227
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 206--224
-
- []
-
-[4]
-Underfull \hbox (badness 10000) in paragraph at lines 229--241
+Underfull \hbox (badness 10000) in paragraph at lines 228--229
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 229--241
+Underfull \hbox (badness 10000) in paragraph at lines 234--236
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 229--241
+Underfull \hbox (badness 10000) in paragraph at lines 243--244
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 229--241
+Underfull \hbox (badness 10000) in paragraph at lines 245--246
 
  []
 
 [5]
-<fig1.png, id=36, 597.432pt x 356.532pt>
-File: fig1.png Graphic file (type png)
-<use fig1.png>
-Package pdftex.def Info: fig1.png  used on input line 257.
-(pdftex.def)             Requested size: 341.44226pt x 199.17781pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 249--262
+Underfull \hbox (badness 10000) in paragraph at lines 247--248
 
  []
+
+
+Package natbib Warning: Citation `Hyden' on page 6 undefined on input line 265.
+
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 265--271
+
+ []
+
+[6]
+<fig1.png, id=39, 597.432pt x 356.532pt>
+File: fig1.png Graphic file (type png)
+<use fig1.png>
+Package pdftex.def Info: fig1.png  used on input line 277.
+(pdftex.def)             Requested size: 469.75502pt x 280.34608pt.
+<fig2.png, id=40, 597.432pt x 356.532pt>
+File: fig2.png Graphic file (type png)
+<use fig2.png>
+Package pdftex.def Info: fig2.png  used on input line 293.
+(pdftex.def)             Requested size: 469.75502pt x 280.34608pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<fig2.png, id=37, 597.432pt x 356.532pt>
-File: fig2.png Graphic file (type png)
-<use fig2.png>
-Package pdftex.def Info: fig2.png  used on input line 265.
-(pdftex.def)             Requested size: 341.44226pt x 199.17781pt.
-[6]
-<fig3.png, id=41, 597.432pt x 356.532pt>
+[7 <./fig1.png>]
+<fig3.png, id=46, 597.432pt x 356.532pt>
 File: fig3.png Graphic file (type png)
 <use fig3.png>
-Package pdftex.def Info: fig3.png  used on input line 273.
-(pdftex.def)             Requested size: 341.44226pt x 199.17781pt.
+Package pdftex.def Info: fig3.png  used on input line 305.
+(pdftex.def)             Requested size: 469.75502pt x 280.34608pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 271--292
 
- []
+LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[7 <./fig1.png> <./fig2.png>] [8 <./fig3.png>]
-<discussion_1.png, id=52, 1468.48625pt x 460.72125pt>
+[8 <./fig2.png>]
+<discussion_1.png, id=51, 1468.48625pt x 460.72125pt>
 File: discussion_1.png Graphic file (type png)
 <use discussion_1.png>
-Package pdftex.def Info: discussion_1.png  used on input line 303.
+Package pdftex.def Info: discussion_1.png  used on input line 343.
 (pdftex.def)             Requested size: 341.41953pt x 85.35161pt.
- [9 <./discussion_1.png>]
+ [9 <./fig3.png>] [10 <./discussion_1.png>]
 No file main.bbl.
 
 Package natbib Warning: There were undefined citations.
 
-[10] (main.aux) ) 
+[11] (main.aux) ) 
 Here is how much of TeX's memory you used:
  13367 strings out of 492973
  263093 string characters out of 3135923
- 319441 words of memory out of 3000000
+ 316442 words of memory out of 3000000
  16970 multiletter control sequences out of 15000+200000
  11849 words of font info for 46 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 55i,16n,54p,1365b,600s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 55i,16n,54p,1346b,600s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cm
 bx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb
 ><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Pro
@@ -752,9 +756,9 @@ am Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/Program Files/
 MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.
 9/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/
 type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on main.pdf (10 pages, 556270 bytes).
+Output written on main.pdf (11 pages, 560647 bytes).
 PDF statistics:
- 111 PDF objects out of 1000 (max. 8388607)
+ 114 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  33 words of extra memory for PDF output out of 10000 (max. 10000000)
 
