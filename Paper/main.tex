@@ -68,35 +68,35 @@ where $f_{\hat{i}}(t)= \int_0^t u_x(t)\cdot dt$ and $f_{\hat{j}}(t)= \int_0^t u_
 \begin{equation*}
     Q(t) =
   \left( {\begin{array}{c}
-   g_x(t) \\
-   g_y(t) \\
+    g_{\hat{i}}(t)  \\
+    g_{\hat{j}}(t) \\
   \end{array} } \right)
   \label{qt}
 \end{equation*}
-where $g_x(t)= \int_0^t v_x(t)\cdot dt$ and $g_y(t)= \int_0^t v_y(t)\cdot dt$ where $v_x(t)$ and $v_y(t)$ are the $\hat{i}$ and $\hat{j}$ components of point Q's velocity. 
+where $ g_{\hat{i}}(t) = \int_0^t v_x(t)\cdot dt$ and $ g_{\hat{j}}(t) = \int_0^t v_y(t)\cdot dt$ where $v_x(t)$ and $v_y(t)$ are the $\hat{i}$ and $\hat{j}$ components of point Q's velocity. 
 
 Thus the distance between $P$ and $Q$ at time $t$ can be expressed as $\vec{d}(t) = P(t) - Q(t)$, which can be used to define the time to closest approach, $TCA = \operatorname*{argmin}_t \{ \vec{d}(t) \}$.
 
 \subsubsection{Simple model}
 
-The simple model, as directly adopted from \citet{Schwarz}, assumes the positions of $P$ and $Q$ at time $t$ can be characterized by their initial positions $P_0$ and $Q_0$, and the constant velocity vectors $\vec{u}$ and $\vec{v}$:
-\begin{equation}
+The simple model, as directly adopted from \citet{Schwarz2014}, assumes the positions of $P$ and $Q$ at time $t$ can be characterized by their initial positions $P_0$ and $Q_0$, and the constant velocity vectors $\vec{u}$ and $\vec{v}$:
+\begin{equation*}
     P(t) = P_0 + t\vec{u}
     \label{eqp}
-\end{equation}
-\begin{equation}
+\end{equation*}
+\begin{equation*}
  Q(t) = Q_0 + t\vec{v}   
  \label{eqq}
-\end{equation}
+\end{equation*}
 The distance, $\vec{d}(t)$, is then given by:
-\begin{equation}
+\begin{equation*}
     \begin{split}
        \vec{d}(t) &= P(t) - Q(t) \\
        &= P_0 - Q_0 + (\vec{u} - \vec{v})t \\
        &= s + (\vec{u} - \vec{v})t
        \label{eqd}
     \end{split}
-\end{equation}
+\end{equation*}
 where $s = P_0 - Q_0$.\\
 TCA occurs when the magnitude of $\vec{d}(t)$ is minimum, requiring $d(t) = \sqrt{\vec{d}(t)\cdot\vec{d}(t)}$ to be minimized with respect to time.
 \begin{equation}
@@ -105,12 +105,13 @@ TCA occurs when the magnitude of $\vec{d}(t)$ is minimum, requiring $d(t) = \sqr
 \end{equation}
 Equating the derivative with provides a closed-form expression for the time to closest approach.
 \begin{equation}
+\label{eqTCA}
  TCA = \displaystyle \frac{- s_0}{|\vec{u} - \vec{v}|^2}
 \end{equation}
 
 \subsubsection{Acceleration and Turning}
 
-The simple model enables a straightfoward calculation of TCA requiring relatively few inputs. However, this calculation is unable to reflect the important driver behaviors of braking, accelerating, and steering.
+The simple model enables a straightfoward calculation of TCA, requiring only the three inputs shown in Equation~\eqref{eqTCA}. However, this calculation is unable to reflect the important driver behaviors of braking, accelerating, and steering.
 
 To modify the calculation to allow for variable velocity, we define the acceleration of $P$ as $\vec{a_P} = a_{P0}\cos(\theta)\hat{i} + a_{P0}\sin(\theta)\hat{j}$, and define the acceleration of $Q$ similarly.  Incorperating acceleration into component of velocity yields:
 \begin{align*}
@@ -124,7 +125,7 @@ To further modify the calculation to allow for turning we use the steering wheel
 \omega_P = \frac{d\theta}{dt}   
  \label{eqwp}
 \end{equation}
-We assume $\omega_P$ is constant, so upon integrating both sides of equation (\ref{eqwp}) with respect to t, we get the angle of motion as a function of time as follows:\\
+We assume $\omega_P$ is constant, so upon integrating both sides of Equation~\eqref{eqwp} with respect to t, we get the angle of motion as a function of time as follows:\\
 \begin{equation}
     \theta(t) = \omega_P \cdot t + \theta_0
     \notag
@@ -146,23 +147,23 @@ As the illustration indicates, given a fixed steering wheel angle, point P trave
 In the event that two vehicles do not collide, TCA indicates the time at which the distance between vehicles will be minimized based upon the set of driver inputs. However, it does not directly quantify the proximity of the two vehicles to a crash. Here, we define a \textit{reaction} as a fixed set of inputs.  We use this term because it might of particular interest to calculate TCA using vehicle trajectories upon having just realized the threat of collision.  The basis of our metric, Standardized Degree of Collision Avoidance (SDCA), is to measure how delayed a driver's reaction would need to be in order for the scenario to result in a collision. 
 
 To approach this task, we begin by augmenting the expressions of $P(t)$ and $Q(t)$ by introducing two latent variables $Z_P$, which describes the reaction delay for $P$, and $Z_Q$, which describes the reaction delay for $Q$. This results in the adjusted positions functions $\tilde{P}(t)$ and $\tilde{P}(t)$:
-\begin{equation}
+\begin{equation*}
     \tilde{P}(t) =
   \left( {\begin{array}{c}
    f_{\hat{i}}(t) + u_0\cdot\cos(\theta_0)\cdot Z_P\\
    f_{\hat{j}}(t) + u_0\cdot\sin(\theta_0)\cdot Z_P \\
   \end{array} } \right)
   \label{pdot}
-\end{equation}
+\end{equation*}
 
-\begin{equation}
+\begin{equation*}
    \tilde{Q}(t) =
   \left( {\begin{array}{c}
    g_{\hat{i}}(t) - v_0\cdot\sin(\phi_0)\cdot Z_Q\\
    g_{\hat{j}}(t) + v_0\cdot\cos(\phi_0)\cdot Z_Q\\
   \end{array} } \right)
   \label{qdot}
-\end{equation}
+\end{equation*}
 
 Equating, $\tilde{P}(t) = \tilde{Q}(t)$ for all t$\in\mathbb{R}$, and solving for $Z_P$ and $Z_Q$ yields the combinations of reaction delays by $P$ and $Q$ that would lead to a collision.  Thus, larger values of $Z_P$ and $Z_Q$ indicate a greater degree by which a collision was avoided.  We next seek to summarize the combinations of $Z_P$ and $Z_Q$ to provide a single overall measure of collision avoidance.
 
@@ -238,7 +239,7 @@ where $dist(a, b)$ indicates distance between points a and b.\\
 
 \subsubsection{SDCA for Objects}
 
-When treating vehicles as points, SDCA was based upon adjusted driver reactions, which were characterized by introducing latent variables $Z_P$ and $Z_Q$ which provided modified positions $\tilde{P}(t)$ and $\tilde{Q}(t)$.  Because the rectangular representations of $P$ and $Q$ arise from center points, the calculation of SDCA in this framework can be approached similarly.  We outline the calculation below:
+When treating vehicles as points, $SDCA$ was based upon adjusted driver reactions, which were characterized by introducing latent variables $Z_P$ and $Z_Q$ which provided modified positions $\tilde{P}(t)$ and $\tilde{Q}(t)$.  Because the rectangular representations of $P$ and $Q$ arise from center points, the calculation of $SDCA$ in this framework can be approached similarly.  We outline the calculation below:
 
 \noindent1) Modify the center points $P(t)$ and $Q(t)$ by introducing latent variables $Z_P$ and $Z_Q$, resulting in adjusted center points $\tilde{P}(t)$ and $\tilde{Q}(t)$. \\
 
@@ -250,7 +251,7 @@ When treating vehicles as points, SDCA was based upon adjusted driver reactions,
 
 \section{Application}
 
-To demonstrate the utility of $SCDA$, we apply the measure to driving simulator data collected by the NADS. In doing so, we illustrate two possible uses of $SDCA$. First, we see how SDCA can be used to forcast the occurrence of a collision based upon a vehicle's reaction profile. Second, we retrospectively analyze experimental data, replacing the binary outcome of collision/no collision using a numeric measure capable of capturing varying degrees of collision severity/avoidance.
+To demonstrate the utility of $SDCA$, we apply the measure to driving simulator data collected by the NADS. In doing so, we illustrate two possible uses of $SDCA$. First, we see how $SDCA$ can be used to forcast the occurrence of a collision based upon a vehicle's reaction profile. Second, we retrospectively analyze experimental data, replacing the binary outcome of collision/no collision using a numeric measure capable of capturing varying degrees of collision severity/avoidance.
 
 \subsection{Data Description}
 
@@ -360,7 +361,7 @@ Under the point framework, each point represents the center of one of the two ve
 
 In Section 3.3 we consider the ability of $SDCA$ to discriminate between collisions and non-collisions. And, as Figure~\ref{figure 2} indicates, the distributions of $\hat{D}$ for collision and non-collision differ greatly.  In this application a threshold of $\hat{D} = 0.9$ yielded expectional classification performance.
 
-Under the vehicles as rectangles framework, all non-zero values of $SDCA$ signify non-collision, with increasing values indicating less proximity to collision. If SCDA is 0, we can identify the point-edge pair that collides by observing the distance function that first returns 0. However, this information is not encoded in SCDA itself but in its calculation, presenting a possible limitation.
+Under the vehicles as rectangles framework, all non-zero values of $SDCA$ signify non-collision, with increasing values indicating less proximity to collision. If $SDCA = 0$, we can identify the point-edge pair that collides by observing the distance function that first returns 0. However, this information is not encoded in $SDCA$ itself but in its calculation, presenting a possible limitation.
 
 Comparing these two frameworks, point-based calculation of $SDCA$ gives range of values that represent severity and proximity of collision, suggesting it to be a superior method for retrospective data analysis.  Conversely, object-based calculation of $SDCA$ is better suited to identify collisions, suggesting it might do a better job forcasting collisions than the point-based calculation.
 
@@ -370,7 +371,7 @@ Alternatively, the inputs needed to calculate $SDCA$ could also be estimated in 
 
 As mentioned above, using object based calculation of $SDCA$ might be better at forecasting as it considers all points of collision between two vehicles. By having a clear threshold that separates collisions and non-collisions, it can more accurately help vehicles avoid collisions entirely. Conversely, if a collision is imminent, point based calculation of SDCA would be useful as it consists of a spectrum of values that separate severe collisions from mild collisions. In a real-world situation, therefore, both calculations of SDCA should be used in tandem.
 
-As demonstrated in Section 3.4, $SDCA$ improves statistical analysis relative to a dummy variable indicating collision. By using a continuous variable, we are able to distinguish between collisions of different levels of severity. For example, a head-on collision and a minor scrape are both classified as a collision, but their levels of severity differ greatly. Additionally, $SDCA$ also allows us to distinguish between non-collisions, as some collisions are barely avoided while others have quite a bit of leeway.  Figure 3 and Table 1 both illustrate the superiority of $SDCA$ to a binary collision variable, which depict similar trends for INT across both response variables, but produce more statistically significant results with SDCA as the response. It is our opinion that using the point framework to calculate SDCA is better for analysis because it incorporates theses distinction for both collisions and non-collisions.
+As demonstrated in Section 3.4, $SDCA$ improves statistical analysis relative to a dummy variable indicating collision. By using a continuous variable, we are able to distinguish between collisions of different levels of severity. For example, a head-on collision and a minor scrape are both classified as a collision, but their levels of severity differ greatly. Additionally, $SDCA$ also allows us to distinguish between non-collisions, as some collisions are barely avoided while others have quite a bit of leeway.  Figure 3 and Table 1 both illustrate the superiority of $SDCA$ to a binary collision variable, which depict similar trends for INT across both response variables, but produce more statistically significant results with SDCA as the response. It is our opinion that using the point framework to calculate $SDCA$ is better for analysis because it incorporates theses distinction for both collisions and non-collisions.
 
 \section{Conclusion}
 

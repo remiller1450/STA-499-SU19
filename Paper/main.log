@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6745 64-bit) (preloaded format=pdflatex 2018.8.23)  14 AUG 2019 13:26
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6745 64-bit) (preloaded format=pdflatex 2018.8.23)  14 AUG 2019 14:57
 entering extended mode
 **./main.tex
 (main.tex
@@ -608,67 +608,62 @@ LaTeX Font Info:    Try loading font information for U+msb on input line 20.
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
-{C:/Users/millerry/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
-
-Package natbib Warning: Citation `Schwarz' on page 2 undefined on input line 82
-.
-
-[2]
-Underfull \hbox (badness 10000) in paragraph at lines 126--128
+{C:/Users/millerry/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 127--129
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 131--133
+Underfull \hbox (badness 10000) in paragraph at lines 132--134
 
  []
 
 [3] [4]
-Underfull \hbox (badness 10000) in paragraph at lines 209--210
+Underfull \hbox (badness 10000) in paragraph at lines 210--211
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 219--220
+Underfull \hbox (badness 10000) in paragraph at lines 220--221
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 226--227
+Underfull \hbox (badness 10000) in paragraph at lines 227--228
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 228--229
+Underfull \hbox (badness 10000) in paragraph at lines 229--230
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 234--236
+Underfull \hbox (badness 10000) in paragraph at lines 235--237
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 243--244
+Underfull \hbox (badness 10000) in paragraph at lines 244--245
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 245--246
+Underfull \hbox (badness 10000) in paragraph at lines 246--247
 
  []
 
 [5]
-Underfull \hbox (badness 10000) in paragraph at lines 247--248
+Underfull \hbox (badness 10000) in paragraph at lines 248--249
 
  []
 
 
-Package natbib Warning: Citation `Hyden' on page 6 undefined on input line 265.
+Package natbib Warning: Citation `Hyden' on page 6 undefined on input line 266.
 
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 265--271
+Underfull \hbox (badness 10000) in paragraph at lines 266--272
 
  []
 
@@ -676,12 +671,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 265--271
 <fig1.png, id=39, 597.432pt x 356.532pt>
 File: fig1.png Graphic file (type png)
 <use fig1.png>
-Package pdftex.def Info: fig1.png  used on input line 278.
+Package pdftex.def Info: fig1.png  used on input line 279.
 (pdftex.def)             Requested size: 422.77664pt x 252.30711pt.
 <fig2.png, id=40, 597.432pt x 356.532pt>
 File: fig2.png Graphic file (type png)
 <use fig2.png>
-Package pdftex.def Info: fig2.png  used on input line 296.
+Package pdftex.def Info: fig2.png  used on input line 297.
 (pdftex.def)             Requested size: 375.80544pt x 224.27904pt.
 
 
@@ -691,7 +686,7 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 <fig3.png, id=46, 597.432pt x 356.532pt>
 File: fig3.png Graphic file (type png)
 <use fig3.png>
-Package pdftex.def Info: fig3.png  used on input line 310.
+Package pdftex.def Info: fig3.png  used on input line 311.
 (pdftex.def)             Requested size: 375.80544pt x 224.27904pt.
 
 
@@ -701,7 +696,7 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 <discussion_1.png, id=55, 1468.48625pt x 460.72125pt>
 File: discussion_1.png Graphic file (type png)
 <use discussion_1.png>
-Package pdftex.def Info: discussion_1.png  used on input line 355.
+Package pdftex.def Info: discussion_1.png  used on input line 356.
 (pdftex.def)             Requested size: 341.41953pt x 85.35161pt.
  [10 <./discussion_1.png>] (main.bbl)
 
@@ -709,10 +704,10 @@ Package natbib Warning: There were undefined citations.
 
 [11] (main.aux) ) 
 Here is how much of TeX's memory you used:
- 13394 strings out of 492973
- 263533 string characters out of 3135923
- 315651 words of memory out of 3000000
- 16994 multiletter control sequences out of 15000+200000
+ 13395 strings out of 492973
+ 263540 string characters out of 3135923
+ 315679 words of memory out of 3000000
+ 16995 multiletter control sequences out of 15000+200000
  12150 words of font info for 47 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  55i,16n,54p,1360b,600s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -732,7 +727,7 @@ s/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy5.pfb><C:/Program Files/MiKTeX
 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.9/fonts
 /type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/p
 ublic/amsfonts/symbols/msbm10.pfb>
-Output written on main.pdf (11 pages, 582910 bytes).
+Output written on main.pdf (11 pages, 582994 bytes).
 PDF statistics:
  118 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
